@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: pearls-aqi-api
+    runtime: python
+    plan: standard
+    buildCommand: pip install -r requirements-prod.txt
+    startCommand: uvicorn src.api.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: HOPSWORKS_API_KEY
+        sync: false
+      - key: HOPSWORKS_PROJECT
+        value: DataProject
+      - key: MODEL_NAME
+        value: aqi_random_forest
+      - key: MODEL_VERSION
+        value: "1"
+      - key: MODEL_SHA256
+        sync: false
+      - key: MODEL_CACHE_DIR
+        value: /opt/render/project/src/.model-cache
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: LOG_LEVEL
+        value: INFO

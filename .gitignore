@@ -1,5 +1,7 @@
 # ── Secrets ────────────────────────────────────────────────────────────────────
 .env
+.env.local
+.env.production
 API.txt
 
 # ── Python bytecode and caches ─────────────────────────────────────────────────
@@ -28,6 +30,10 @@ artifacts/*
 # ── Hopsworks and pipeline run logs ────────────────────────────────────────────
 artifacts/hopsworks_logs/
 artifacts/runtime/
+.model-cache/
+model-cache/
+*.joblib
+*.joblib.sha256
 
 # ── Frontend build outputs ─────────────────────────────────────────────────────
 node_modules/

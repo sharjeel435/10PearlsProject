@@ -1,8 +1,10 @@
 import {
   CITIES,
+  type AQICategory,
   type City,
   type ForecastResponse,
   type HealthResponse,
+  type LatestObservation,
   type ModelInfo,
 } from "./types";
 
@@ -12,7 +14,9 @@ export class ApiError extends Error {
   }
 }
 
-const base = (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").replace(/\/$/, "");
+export const normalizeApiBaseUrl = (value: string | undefined) =>
+  (value ?? "").trim().replace(/\/+$/, "");
+const base = normalizeApiBaseUrl(process.env.NEXT_PUBLIC_API_BASE_URL);
 
 async function request<T>(route: string): Promise<T> {
   if (!base) throw new ApiError("API origin is not configured");
@@ -42,35 +46,33 @@ async function request<T>(route: string): Promise<T> {
   }
 }
 
-export function normalizeForecast(
-  payload: Record<string, any>
-): ForecastResponse {
-  if (!isCity(payload.city) || !payload.generated_at) {
+export function normalizeForecast(payload: Record<string, unknown>): ForecastResponse {
+  if (!isCity(String(payload.city)) || !payload.generated_at) {
     throw new ApiError("Forecast response is invalid");
   }
 
-  if (payload.forecasts) return payload as ForecastResponse;
+  if (payload.forecasts) return payload as unknown as ForecastResponse;
 
   return {
-    city: payload.city,
+    city: String(payload.city) as City,
     generated_at: String(payload.generated_at),
     model: String(payload.model),
     model_version: Number(payload.model_version),
-    latest_observation: payload.latest_observation ?? null,
+    latest_observation: (payload.latest_observation ?? null) as LatestObservation | null,
     forecasts: {
       "24h": {
         aqi: Number(payload.predicted_aqi_24h),
-        category: payload.category_24h,
+        category: String(payload.category_24h) as AQICategory,
         timestamp: String(payload.forecast_for_24h),
       },
       "48h": {
         aqi: Number(payload.predicted_aqi_48h),
-        category: payload.category_48h,
+        category: String(payload.category_48h) as AQICategory,
         timestamp: String(payload.forecast_for_48h),
       },
       "72h": {
         aqi: Number(payload.predicted_aqi_72h),
-        category: payload.category_72h,
+        category: String(payload.category_72h) as AQICategory,
         timestamp: String(payload.forecast_for_72h),
       },
     },

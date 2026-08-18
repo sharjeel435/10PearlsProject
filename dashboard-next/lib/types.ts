@@ -47,6 +47,7 @@ export interface ForecastResponse {
   model_version: number;
   latest_observation: LatestObservation | null;
   forecasts: Record<"24h" | "48h" | "72h", ForecastPoint>;
+  data_status?: "live" | "cached";
 }
 
 export interface ValidationMetrics {
@@ -73,5 +74,6 @@ export interface ModelInfo {
 
 export interface HealthResponse {
   status: string;
+  model_ready: boolean;
   forecast_ready: boolean;
 }
