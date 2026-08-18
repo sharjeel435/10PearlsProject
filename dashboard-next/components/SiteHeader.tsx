@@ -1,0 +1,2 @@
+import Link from "next/link";import{Wind}from"lucide-react";
+export default function SiteHeader(){return <header className="site-header"><Link className="brand" href="/"><span className="brand-mark"><Wind size={19}/></span><span><b>PEARLS</b><small>AIR INTELLIGENCE</small></span></Link><nav><Link href="/dashboard">Dashboard</Link><Link href="/models">Models</Link><Link href="/methodology">Methodology</Link><Link href="/about">About</Link></nav><span className="badge green"><i/>VERIFIED SYSTEM</span></header>}

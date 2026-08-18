@@ -1,0 +1,1 @@
+export default function Loading(){return <main className="state-page" aria-live="polite"><div className="skeleton wide"/><div className="skeleton title"/><div className="skeleton copy"/><div className="skeleton-grid"><div/><div/><div/></div><span>Loading verified air-quality data…</span></main>}

@@ -1,0 +1,1 @@
+import Link from"next/link";export default function NotFound(){return <main className="state-page"><span className="eyebrow">404</span><h1>This airspace is uncharted.</h1><p>The page you requested does not exist.</p><Link className="primary" href="/">Return home</Link></main>}

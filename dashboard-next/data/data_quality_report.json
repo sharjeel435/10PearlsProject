@@ -1,0 +1,90 @@
+{
+  "cities_processed": [
+    "Islamabad",
+    "Karachi",
+    "Lahore"
+  ],
+  "start_date": "2022-08-01T00:00:00+00:00",
+  "end_date": "2026-08-10T23:00:00+00:00",
+  "raw_records": 211824,
+  "clean_records": 105912,
+  "feature_count": 358,
+  "missing_percentage": 0.137,
+  "feature_group_version": 1,
+  "pre_validation": {
+    "rows": 105912,
+    "cities": [
+      "Islamabad",
+      "Karachi",
+      "Lahore"
+    ],
+    "start": "2022-08-01T00:00:00+00:00",
+    "end": "2026-08-10T23:00:00+00:00",
+    "duplicate_keys": 0,
+    "missing_hours": {
+      "Karachi": 0,
+      "Lahore": 0,
+      "Islamabad": 0
+    },
+    "missing_values": {
+      "pm10": 216,
+      "pm2_5": 216,
+      "carbon_monoxide": 216,
+      "nitrogen_dioxide": 216,
+      "sulphur_dioxide": 216,
+      "ozone": 216,
+      "us_aqi": 288
+    },
+    "invalid_counts": {
+      "negative_pm10": 0,
+      "negative_pm2_5": 0,
+      "negative_carbon_monoxide": 0,
+      "negative_nitrogen_dioxide": 0,
+      "negative_sulphur_dioxide": 0,
+      "negative_ozone": 91,
+      "invalid_humidity": 0,
+      "invalid_aqi": 9,
+      "infinite_values": 0
+    }
+  },
+  "cleaning": {
+    "rows_downloaded": 105912,
+    "rows_removed": 0,
+    "invalid_timestamps": 0,
+    "invalid_values_set_missing": 100,
+    "rows_after_cleaning": 105912,
+    "missing_values": 1590
+  },
+  "by_city": {
+    "Islamabad": {
+      "raw_rows": 35304,
+      "clean_rows": 35304,
+      "missing_timestamps": 0,
+      "duplicate_timestamps": 0,
+      "missing_values": 528,
+      "largest_gap_hours": 1.0,
+      "start": "2022-08-01T00:00:00+00:00",
+      "end": "2026-08-10T23:00:00+00:00"
+    },
+    "Karachi": {
+      "raw_rows": 35304,
+      "clean_rows": 35304,
+      "missing_timestamps": 0,
+      "duplicate_timestamps": 0,
+      "missing_values": 528,
+      "largest_gap_hours": 1.0,
+      "start": "2022-08-01T00:00:00+00:00",
+      "end": "2026-08-10T23:00:00+00:00"
+    },
+    "Lahore": {
+      "raw_rows": 35304,
+      "clean_rows": 35304,
+      "missing_timestamps": 0,
+      "duplicate_timestamps": 0,
+      "missing_values": 534,
+      "largest_gap_hours": 1.0,
+      "start": "2022-08-01T00:00:00+00:00",
+      "end": "2026-08-10T23:00:00+00:00"
+    }
+  }
+}

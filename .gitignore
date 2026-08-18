@@ -1,0 +1,40 @@
+# ── Secrets ────────────────────────────────────────────────────────────────────
+.env
+API.txt
+
+# ── Python bytecode and caches ─────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# ── Virtual environments ────────────────────────────────────────────────────────
+.venv/
+
+# ── Data files (large; use scripts to regenerate or restore) ──────────────────
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# ── Artifacts (large model binaries and generated outputs) ─────────────────────
+artifacts/*
+!artifacts/.gitkeep
+*.h5
+*.keras
+
+# ── Hopsworks and pipeline run logs ────────────────────────────────────────────
+artifacts/hopsworks_logs/
+artifacts/runtime/
+
+# ── Frontend build outputs ─────────────────────────────────────────────────────
+node_modules/
+.next/
+dashboard-next/coverage/
+dashboard-next/tsconfig.tsbuildinfo
+
+# ── Frontend environment files ─────────────────────────────────────────────────
+dashboard-next/.env.local
+dashboard-next/.env.production.local

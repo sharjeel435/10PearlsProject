@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pearls-aqi-predictor"
+version = "0.1.0"
+description = "Production-oriented multi-city AQI forecasting for Pakistan"
+requires-python = ">=3.11,<3.15"
+dependencies = [
+  "pandas>=2.1,<3",
+  "numpy>=1.26,<2",
+  "requests>=2.31,<3",
+  "scikit-learn>=1.4,<1.6",
+  "scipy>=1.11,<1.14",
+  "joblib>=1.3,<2",
+  "python-dotenv>=1,<2",
+  "matplotlib>=3.8,<4",
+  "seaborn>=0.13,<1",
+]
+
+[project.optional-dependencies]
+hopsworks = ["hopsworks[python]>=5.0,<5.1", "deltalake>=1.0,<2"]
+lstm = ["tensorflow>=2.16,<2.17"]
+explain = ["shap>=0.45,<0.47"]
+app = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "streamlit>=1.38,<1.42"]
+dev = ["pytest>=8,<9", "ruff>=0.6,<1"]
+
+[tool.setuptools.packages.find]
+include = ["config*", "src*"]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100

@@ -1,0 +1,4 @@
+# Developer setup shortcut — installs all optional dependency groups.
+# Dependency source of truth is pyproject.toml.
+# Verified runtime: Python 3.12
+-e ".[dev,hopsworks,lstm,explain,app]"

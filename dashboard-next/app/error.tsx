@@ -1,0 +1,1 @@
+"use client";export default function ErrorPage({reset}:{reset:()=>void}){return <main className="state-page"><span className="eyebrow">SERVICE STATUS</span><h1>Forecast temporarily unavailable.</h1><p>The interface could not load a verified forecast. No placeholder values are being shown.</p><button className="primary" onClick={reset}>Try again</button></main>}

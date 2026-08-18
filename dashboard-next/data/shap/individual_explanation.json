@@ -1,0 +1,86 @@
+{
+  "prediction_output": "24h",
+  "base_value": 119.78563138394438,
+  "top_contributors": [
+    {
+      "feature": "numeric__us_aqi",
+      "shap_value": 5.421049251759436
+    },
+    {
+      "feature": "numeric__aqi_rolling_max_3h",
+      "shap_value": 4.983427590591667
+    },
+    {
+      "feature": "numeric__aqi_rolling_mean_3h",
+      "shap_value": 4.405643427786423
+    },
+    {
+      "feature": "numeric__aqi_lag_1h",
+      "shap_value": 3.5921525521961746
+    },
+    {
+      "feature": "numeric__aqi_rolling_min_3h",
+      "shap_value": 3.2897105109086553
+    },
+    {
+      "feature": "numeric__aqi_above_150",
+      "shap_value": 2.7456174936225177
+    },
+    {
+      "feature": "numeric__aqi_lag_2h",
+      "shap_value": 2.1689548354324852
+    },
+    {
+      "feature": "numeric__aqi_rolling_mean_6h",
+      "shap_value": 1.8920458931119026
+    },
+    {
+      "feature": "numeric__consecutive_high_aqi_hours",
+      "shap_value": 1.889040434280617
+    },
+    {
+      "feature": "numeric__aqi_rolling_max_6h",
+      "shap_value": 1.6024513594910699
+    },
+    {
+      "feature": "numeric__aqi_above_200",
+      "shap_value": 1.4780825687127477
+    },
+    {
+      "feature": "numeric__aqi_above_100",
+      "shap_value": 1.3387039521679032
+    },
+    {
+      "feature": "numeric__aqi_lag_3h",
+      "shap_value": 1.0215003071880793
+    },
+    {
+      "feature": "numeric__aqi_lag_24h",
+      "shap_value": 1.021481508435456
+    },
+    {
+      "feature": "numeric__aqi_change_6h",
+      "shap_value": 0.9700738911584491
+    },
+    {
+      "feature": "numeric__aqi_rolling_max_12h",
+      "shap_value": 0.9507305236427122
+    },
+    {
+      "feature": "numeric__o3_lag_3h",
+      "shap_value": 0.9132926435902199
+    },
+    {
+      "feature": "numeric__aqi_lag_72h",
+      "shap_value": 0.8770653028250607
+    },
+    {
+      "feature": "numeric__aqi_rolling_mean_24h",
+      "shap_value": 0.8075285647791949
+    },
+    {
+      "feature": "numeric__aqi_rolling_mean_168h",
+      "shap_value": 0.7902197579957466
+    }
+  ]
+}

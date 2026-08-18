@@ -1,0 +1,2 @@
+import React from "react";
+export default function ForecastState({state}:{state:"loading"|"empty"|"error"}){const copy={loading:["Loading forecast","Waiting for verified data…"],empty:["Forecast not ready","No verified forecast is available."],error:["Forecast temporarily unavailable","The service could not be reached. No placeholder values are shown."]}[state];return <section role="status" aria-live="polite" className="forecast-state"><b>{copy[0]}</b><span>{copy[1]}</span></section>}
