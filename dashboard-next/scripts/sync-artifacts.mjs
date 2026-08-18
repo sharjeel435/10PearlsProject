@@ -1,4 +1,4 @@
-import { copyFile, mkdir } from "node:fs/promises";
+import { copyFile, mkdir, access } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -21,10 +21,19 @@ const files = [
   "shap/individual_explanation.json",
 ];
 
+let synced = 0;
 for (const file of files) {
+  const src = path.join(source, file);
   const destination = path.join(target, file);
-  await mkdir(path.dirname(destination), { recursive: true });
-  await copyFile(path.join(source, file), destination);
+  try {
+    await access(src);
+    await mkdir(path.dirname(destination), { recursive: true });
+    await copyFile(src, destination);
+    synced++;
+  } catch {
+    console.warn(`⚠️  Skipping missing artifact: ${file}`);
+  }
 }
 
-console.log(`Synced ${files.length} verified presentation artifacts.`);
+console.log(`✅ Synced ${synced}/${files.length} presentation artifacts.`);
+

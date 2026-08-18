@@ -1,0 +1,7 @@
+{
+  "hyperparameters": {
+    "sequence_length": 48
+  },
+  "feature_count": 32,
+  "training_time_seconds": 176.93819529999746
+}

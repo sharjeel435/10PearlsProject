@@ -1,4 +1,7 @@
 # Developer setup shortcut — installs all optional dependency groups.
 # Dependency source of truth is pyproject.toml.
 # Verified runtime: Python 3.12
+#
+# Production: no server is deployed. The project uses a static Vercel
+# deployment. GitHub Actions runs the pipeline and commits artifacts.
 -e ".[dev,hopsworks,lstm,explain,app]"

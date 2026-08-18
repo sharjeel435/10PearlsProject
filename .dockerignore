@@ -1,0 +1,61 @@
+# ── .dockerignore — keep the Docker build context small ───────────────────────
+
+# Python caches & bytecode
+__pycache__/
+*.py[cod]
+*.pyo
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Virtual environment — never copy into image
+.venv/
+venv/
+env/
+
+# Large model binaries — downloaded from Hopsworks at runtime
+*.joblib
+*.joblib.sha256
+.model-cache/
+model-cache/
+
+# Raw and processed data — not needed at serving time
+data/raw/
+data/processed/
+
+# Training artefacts that are large and not needed by the API
+artifacts/aqi_lstm/
+artifacts/aqi_ridge/
+artifacts/eda/
+artifacts/reports/
+artifacts/shap/
+artifacts/*.h5
+artifacts/*.keras
+
+# Frontend — not deployed in this image
+dashboard-next/
+dashboard/
+node_modules/
+.next/
+
+# Git and CI
+.git/
+.github/
+.gitignore
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+
+# Test suite
+tests/
+
+# OS noise
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/

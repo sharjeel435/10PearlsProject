@@ -1,0 +1,116 @@
+name: Daily forecast → commit artifacts → redeploy Vercel
+
+on:
+  workflow_dispatch:
+  schedule:
+    # 03:00 UTC = 08:00 PKT (Pakistan Standard Time, UTC+5)
+    - cron: "0 3 * * *"
+
+permissions:
+  contents: write
+
+# Prevent two forecast jobs from writing simultaneously
+concurrency:
+  group: pearls-aqi-forecast
+  cancel-in-progress: false
+
+jobs:
+  forecast:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+
+    steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ── 2. Python ────────────────────────────────────────────────────────────
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[hopsworks]"
+
+      # ── 3. Pipeline ──────────────────────────────────────────────────────────
+      - name: Generate latest forecasts
+        env:
+          HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+          HOPSWORKS_PROJECT: DataProject
+          MODEL_NAME: aqi_random_forest
+          MODEL_VERSION: "1"
+          MODEL_SHA256: ${{ secrets.MODEL_SHA256 }}
+          MODEL_CACHE_DIR: /tmp/.model-cache
+        run: python -m scripts.predict --latest
+
+      - name: Export frontend historical data
+        env:
+          HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+          HOPSWORKS_PROJECT: DataProject
+        run: python -m scripts.export_web_data || echo "⚠️ export_web_data skipped (processed parquet not available)"
+
+      # ── 4. Safety checks ─────────────────────────────────────────────────────
+      - name: Verify required artifacts exist
+        run: |
+          test -f artifacts/latest_forecasts.json    || (echo "❌ missing latest_forecasts.json"    && exit 1)
+          test -f artifacts/latest_observations.json || (echo "❌ missing latest_observations.json" && exit 1)
+          echo "✅ Required artifacts present"
+
+      - name: Ensure no model binary is tracked by Git
+        run: |
+          if git ls-files | grep -E '\.(joblib|pkl|pickle)$'; then
+            echo "❌ ERROR: A model binary is tracked by Git. Remove it with: git rm --cached <file>"
+            exit 1
+          fi
+          echo "✅ No model binaries tracked"
+
+      # ── 5. Node / frontend sync ──────────────────────────────────────────────
+      - name: Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: dashboard-next/package-lock.json
+
+      - name: Install frontend dependencies
+        working-directory: dashboard-next
+        run: npm ci
+
+      - name: Sync artifacts into dashboard-next/data
+        working-directory: dashboard-next
+        run: npm run prebuild
+
+      - name: Verify frontend data directory
+        run: |
+          test -d dashboard-next/data || (echo "❌ dashboard-next/data not created" && exit 1)
+          echo "📂 dashboard-next/data contents:"
+          ls -lah dashboard-next/data
+          if [ -d dashboard-next/data/shap ]; then ls -lah dashboard-next/data/shap; fi
+
+      # ── 6. Commit and push ───────────────────────────────────────────────────
+      - name: Commit artifacts and frontend data
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Stage artifact files and the pre-synced frontend data folder.
+          # Vercel then only needs to run: npm ci && next build
+          # — no access to ../artifacts needed.
+          git add artifacts/
+          git add dashboard-next/data/
+
+          if git diff --cached --quiet; then
+            echo "✅ No forecast changes — skipping commit and redeploy."
+            exit 0
+          fi
+
+          git commit -m "chore(artifacts): update daily AQI forecasts [skip ci]"
+          git push
+          echo "✅ Committed — Vercel will redeploy automatically."

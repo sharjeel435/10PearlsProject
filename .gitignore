@@ -1,10 +1,10 @@
-# ── Secrets ────────────────────────────────────────────────────────────────────
+# ── Secrets ──────────────────────────────────────────────────────────────────
 .env
 .env.local
 .env.production
 API.txt
 
-# ── Python bytecode and caches ─────────────────────────────────────────────────
+# ── Python bytecode and caches ────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
 .pytest_cache/
@@ -12,35 +12,42 @@ __pycache__/
 .ruff_cache/
 *.egg-info/
 
-# ── Virtual environments ────────────────────────────────────────────────────────
+# ── Virtual environments ──────────────────────────────────────────────────────
 .venv/
+venv/
+env/
 
-# ── Data files (large; use scripts to regenerate or restore) ──────────────────
+# ── Large model binaries — always excluded regardless of location ─────────────
+# The 498 MB model is stored in Hopsworks and downloaded at pipeline runtime.
+*.joblib
+*.joblib.sha256
+*.pkl
+*.pickle
+*.h5
+*.keras
+.model-cache/
+model-cache/
+
+# ── Raw and processed training data ──────────────────────────────────────────
 data/raw/*
 data/processed/*
 !data/raw/.gitkeep
 !data/processed/.gitkeep
 
-# ── Artifacts (large model binaries and generated outputs) ─────────────────────
-artifacts/*
-!artifacts/.gitkeep
-*.h5
-*.keras
-
-# ── Hopsworks and pipeline run logs ────────────────────────────────────────────
+# ── Hopsworks pipeline logs ───────────────────────────────────────────────────
 artifacts/hopsworks_logs/
 artifacts/runtime/
-.model-cache/
-model-cache/
-*.joblib
-*.joblib.sha256
 
-# ── Frontend build outputs ─────────────────────────────────────────────────────
+# NOTE: artifacts/*.json, artifacts/*.csv, artifacts/*.md, artifacts/shap/ are
+# intentionally NOT listed here — they are small and must be tracked so that
+# GitHub Actions can commit them and Vercel can read them at build time.
+
+# ── Frontend build outputs ────────────────────────────────────────────────────
 node_modules/
 .next/
 dashboard-next/coverage/
 dashboard-next/tsconfig.tsbuildinfo
 
-# ── Frontend environment files ─────────────────────────────────────────────────
+# ── Frontend environment files ────────────────────────────────────────────────
 dashboard-next/.env.local
 dashboard-next/.env.production.local

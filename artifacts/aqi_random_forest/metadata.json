@@ -1,0 +1,9 @@
+{
+  "hyperparameters": {
+    "n_estimators": 160,
+    "max_depth": 24,
+    "min_samples_leaf": 2,
+    "max_features": "sqrt"
+  },
+  "feature_count": 354
+}
