@@ -1,0 +1,13 @@
+{
+  "name": "pearls-air-intelligence-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "npm --prefix dashboard-next run dev",
+    "build": "npm --prefix dashboard-next run build",
+    "start": "npm --prefix dashboard-next run start",
+    "test": "npm --prefix dashboard-next run test",
+    "lint": "npm --prefix dashboard-next run lint",
+    "typecheck": "npm --prefix dashboard-next run typecheck"
+  }
+}

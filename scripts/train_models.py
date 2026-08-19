@@ -21,11 +21,16 @@ from src.training.random_forest_trainer import train_random_forest
 from src.training.ridge_trainer import train_ridge
 from src.training.lstm_trainer import make_sequences, train_lstm
 from src.training.split import chronological_split
+from src.training.hgbt_trainer import train_hgbt
 
 
 def train_tabular(frame):
     frame = complete_rows(frame); split = chronological_split(frame); results = []
-    for name, trainer in (("aqi_ridge", train_ridge), ("aqi_random_forest", train_random_forest)):
+    for name, trainer in (
+        ("aqi_ridge", train_ridge),
+        ("aqi_random_forest", train_random_forest),
+        ("aqi_hgbt", train_hgbt),
+    ):
         model, params, elapsed, columns = trainer(split.train, split.validation)
         val_pred = model.predict(split.validation[columns])
         metrics = evaluate_predictions(split.validation[list(TARGET_COLUMNS)], val_pred, split.validation.city)

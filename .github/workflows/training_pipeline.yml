@@ -9,10 +9,17 @@ jobs:
     timeout-minutes: 180
     steps:
       - uses: actions/checkout@v4
+
       - uses: actions/setup-python@v5
-        with: {python-version: "3.12", cache: pip}
-      - run: pip install -e ".[hopsworks,lstm,explain]"
-      - run: python -m scripts.train_models --hopsworks --register
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -e ".[hopsworks,lstm,explain]"
+
+      - name: Train all models (Ridge, RF, HGBT, LSTM) and register
+        run: python -m scripts.train_models --hopsworks --register
         env:
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
           HOPSWORKS_PROJECT: DataProject
