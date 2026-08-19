@@ -23,7 +23,7 @@ def incremental_frame(lookback_days: int = 9):
         weather = client.fetch_historical(city, start, end, WEATHER_VARIABLES, "weather")
         air = client.fetch_historical(city, start, end, AIR_QUALITY_VARIABLES, "air_quality")
         frames.append(merge_weather_air_quality(weather, air))
-    clean, _ = clean_observations(pd.concat(frames, ignore_index=True)); validate_observations(clean)
+    clean, _ = clean_observations(pd.concat(frames, ignore_index=True)); validate_observations(clean, require_target=False)
     featured = engineer_features(clean, include_targets=False)
     # Archive availability trails wall-clock time. Emit the newest complete hour,
     # rather than comparing with "now" and accidentally producing an empty batch.

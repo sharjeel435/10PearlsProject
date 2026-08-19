@@ -13,7 +13,6 @@ def get_or_create_feature_group(feature_store):
     return feature_store.get_or_create_feature_group(
         name=SETTINGS.feature_group_name, version=SETTINGS.feature_group_version,
         description=DESCRIPTION, primary_key=["city", "timestamp"], event_time="timestamp",
-        online_enabled=False, time_travel_format="HUDI",
     )
 
 

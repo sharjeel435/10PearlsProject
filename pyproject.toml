@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-hopsworks = ["hopsworks[python]>=5.0,<5.1", "deltalake>=1.0,<2"]
+hopsworks = ["hopsworks[python]>=3.7,<4", "deltalake>=1.0,<2"]
 lstm = ["tensorflow>=2.16,<2.17"]
 explain = ["shap>=0.45,<0.47"]
 app = ["fastapi>=0.115,<1", "uvicorn>=0.30,<1", "streamlit>=1.38,<1.42"]
