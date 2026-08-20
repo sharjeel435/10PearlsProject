@@ -7,6 +7,7 @@ from src.features.quality import audit_features
 from src.prediction.categories import aqi_category
 from src.prediction.predictor import load_sklearn_bundle
 from src.training.lstm_trainer import make_sequences
+from scripts.predict import build_forecast_rows
 
 
 @pytest.mark.parametrize(("aqi", "category"), [(0, "Good"), (51, "Moderate"), (101, "Unhealthy for Sensitive Groups"),
@@ -39,3 +40,19 @@ def test_joblib_loader_rejects_untrusted_path(tmp_path):
     path = tmp_path / "model.joblib"; path.write_bytes(b"not-a-model")
     with pytest.raises(ValueError, match="trusted artifacts"):
         load_sklearn_bundle(path, expected_sha256="0" * 64)
+
+
+def test_forecast_artifact_preserves_loaded_model_version():
+    issued = pd.Timestamp("2026-08-20T00:00:00Z")
+    long = pd.DataFrame([
+        {
+            "city": "Karachi",
+            "issued_at": issued,
+            "horizon_hours": horizon,
+            "forecast_timestamp": issued + pd.Timedelta(hours=horizon),
+            "predicted_us_aqi": 80.0 + horizon,
+        }
+        for horizon in (24, 48, 72)
+    ])
+    rows = build_forecast_rows(long, "aqi_random_forest", 2)
+    assert rows[0]["model_version"] == 2

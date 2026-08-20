@@ -1,86 +1,107 @@
 {
+  "model": "random_forest",
   "prediction_output": "24h",
-  "base_value": 119.78563138394438,
+  "prediction": 160.57137569450396,
   "top_contributors": [
     {
       "feature": "numeric__us_aqi",
-      "shap_value": 5.421049251759436
+      "feature_value": 174.0,
+      "shap_value": 5.525386207537365
     },
     {
       "feature": "numeric__aqi_rolling_max_3h",
-      "shap_value": 4.983427590591667
+      "feature_value": 174.0,
+      "shap_value": 4.9538131954184745
     },
     {
       "feature": "numeric__aqi_rolling_mean_3h",
-      "shap_value": 4.405643427786423
-    },
-    {
-      "feature": "numeric__aqi_lag_1h",
-      "shap_value": 3.5921525521961746
-    },
-    {
-      "feature": "numeric__aqi_rolling_min_3h",
-      "shap_value": 3.2897105109086553
+      "feature_value": 164.33333333333334,
+      "shap_value": 3.436633638050936
     },
     {
       "feature": "numeric__aqi_above_150",
-      "shap_value": 2.7456174936225177
-    },
-    {
-      "feature": "numeric__aqi_lag_2h",
-      "shap_value": 2.1689548354324852
-    },
-    {
-      "feature": "numeric__aqi_rolling_mean_6h",
-      "shap_value": 1.8920458931119026
+      "feature_value": 1.0,
+      "shap_value": 2.8768823212293957
     },
     {
       "feature": "numeric__consecutive_high_aqi_hours",
-      "shap_value": 1.889040434280617
+      "feature_value": 76.0,
+      "shap_value": 1.996656134208849
     },
     {
       "feature": "numeric__aqi_rolling_max_6h",
-      "shap_value": 1.6024513594910699
-    },
-    {
-      "feature": "numeric__aqi_above_200",
-      "shap_value": 1.4780825687127477
+      "feature_value": 174.0,
+      "shap_value": 1.8237357287342955
     },
     {
       "feature": "numeric__aqi_above_100",
-      "shap_value": 1.3387039521679032
+      "feature_value": 1.0,
+      "shap_value": 1.6488638833116749
     },
     {
-      "feature": "numeric__aqi_lag_3h",
-      "shap_value": 1.0215003071880793
+      "feature": "numeric__aqi_lag_1h",
+      "feature_value": 165.0,
+      "shap_value": 1.6343351912892763
+    },
+    {
+      "feature": "numeric__aqi_pct_change_3h",
+      "feature_value": 0.12258064516129032,
+      "shap_value": 1.4446814249390092
     },
     {
       "feature": "numeric__aqi_lag_24h",
-      "shap_value": 1.021481508435456
+      "feature_value": 164.0,
+      "shap_value": 1.3011569024933276
     },
     {
-      "feature": "numeric__aqi_change_6h",
-      "shap_value": 0.9700738911584491
+      "feature": "numeric__aqi_rolling_mean_6h",
+      "feature_value": 160.5,
+      "shap_value": 1.2320507683311834
     },
     {
-      "feature": "numeric__aqi_rolling_max_12h",
-      "shap_value": 0.9507305236427122
-    },
-    {
-      "feature": "numeric__o3_lag_3h",
-      "shap_value": 0.9132926435902199
+      "feature": "numeric__aqi_change_3h",
+      "feature_value": 19.0,
+      "shap_value": 1.2300504637297176
     },
     {
       "feature": "numeric__aqi_lag_72h",
-      "shap_value": 0.8770653028250607
+      "feature_value": 181.0,
+      "shap_value": 1.0584306748890235
     },
     {
-      "feature": "numeric__aqi_rolling_mean_24h",
-      "shap_value": 0.8075285647791949
+      "feature": "numeric__pm10_rolling_max_72h",
+      "feature_value": 501.1,
+      "shap_value": 1.0238095699431753
     },
     {
-      "feature": "numeric__aqi_rolling_mean_168h",
-      "shap_value": 0.7902197579957466
+      "feature": "numeric__o3_lag_3h",
+      "feature_value": 190.0,
+      "shap_value": 1.0171606514939784
+    },
+    {
+      "feature": "numeric__pm25_rolling_mean_72h",
+      "feature_value": 63.391666666666666,
+      "shap_value": 0.979363550588832
+    },
+    {
+      "feature": "numeric__aqi_rolling_min_3h",
+      "feature_value": 154.0,
+      "shap_value": 0.9658877342371772
+    },
+    {
+      "feature": "numeric__aqi_lag_48h",
+      "feature_value": 178.0,
+      "shap_value": 0.9490727135980924
+    },
+    {
+      "feature": "numeric__aqi_lag_168h",
+      "feature_value": 193.0,
+      "shap_value": 0.8806176568821591
+    },
+    {
+      "feature": "numeric__aqi_rolling_max_12h",
+      "feature_value": 174.0,
+      "shap_value": 0.8719383881832381
     }
   ]
 }

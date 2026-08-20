@@ -18,6 +18,9 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[hopsworks,lstm,explain]"
 
+      - name: Run leakage, artifact, and application quality gates
+        run: pytest -q
+
       - name: Train all models (Ridge, RF, HGBT, LSTM) and register
         run: python -m scripts.train_models --hopsworks --register
         env:

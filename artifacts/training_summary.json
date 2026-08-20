@@ -1,13 +1,13 @@
 {
-  "stored_columns": 362,
+  "generated_by": "scripts.train_models",
+  "model_selection_split": "validation",
+  "final_evaluation_split": "test",
+  "source_stored_columns": 362,
+  "training_columns": 358,
   "candidate_features": 358,
   "valid_features": 354,
   "excluded": 4,
-  "exclusion_reasons": {
-    "raw_identifier": 2,
-    "duplicate_of:precipitation": 1,
-    "duplicate_of:day": 1
-  },
+  "split_purge_hours": 72,
   "leakage": {
     "cross_city": "PASS",
     "targets": "PASS",
@@ -17,14 +17,14 @@
     "lstm_sequences": "PASS"
   },
   "train": {
-    "rows": 73818,
+    "rows": 73602,
     "start": "2022-08-04 00:00:00+00:00",
-    "end": "2025-05-25 11:00:00+00:00"
+    "end": "2025-05-22 11:00:00+00:00"
   },
   "validation": {
-    "rows": 15822,
+    "rows": 15606,
     "start": "2025-05-25 12:00:00+00:00",
-    "end": "2025-12-31 05:00:00+00:00"
+    "end": "2025-12-28 05:00:00+00:00"
   },
   "test": {
     "rows": 15822,

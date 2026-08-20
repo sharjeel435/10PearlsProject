@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import pandas as pd
 
+from config.settings import TARGET_HORIZONS
 from src.features.feature_engineering import TARGET_COLUMNS, assert_no_leakage
 from src.training.split import TimeSplit
 
@@ -16,8 +17,11 @@ def run_leakage_audit(frame: pd.DataFrame, feature_columns: list[str], split: Ti
         target_isolation &= expected.fillna(-1).equals(ordered[target].fillna(-1))
     split_ok = True
     if split:
-        split_ok = (split.train.timestamp.max() < split.validation.timestamp.min()
-                    < split.validation.timestamp.max() < split.test.timestamp.min())
+        horizon = pd.Timedelta(hours=max(TARGET_HORIZONS))
+        split_ok = (
+            split.train.timestamp.max() + horizon < split.validation.timestamp.min()
+            and split.validation.timestamp.max() + horizon < split.test.timestamp.min()
+        )
     return {
         "cross_city": "PASS" if target_isolation else "FAIL",
         "targets": "PASS",
@@ -26,4 +30,3 @@ def run_leakage_audit(frame: pd.DataFrame, feature_columns: list[str], split: Ti
         "chronology": "PASS" if chronology and split_ok else "FAIL",
         "lstm_sequences": "PASS",  # make_sequences iterates within groupby(city)
     }
-

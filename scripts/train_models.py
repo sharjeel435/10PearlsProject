@@ -24,14 +24,43 @@ from src.training.split import chronological_split
 from src.training.hgbt_trainer import train_hgbt
 
 
-def train_tabular(frame):
+def split_summary(split):
+    """Serialize the exact partitions used by the fitted artifacts."""
+    return {
+        name: {
+            "rows": int(len(part)),
+            "start": str(part.timestamp.min()),
+            "end": str(part.timestamp.max()),
+        }
+        for name, part in (
+            ("train", split.train),
+            ("validation", split.validation),
+            ("test", split.test),
+        )
+    }
+
+
+def train_tabular(frame, selected_configuration=False):
     frame = complete_rows(frame); split = chronological_split(frame); results = []
-    for name, trainer in (
-        ("aqi_ridge", train_ridge),
-        ("aqi_random_forest", train_random_forest),
-        ("aqi_hgbt", train_hgbt),
-    ):
-        model, params, elapsed, columns = trainer(split.train, split.validation)
+    trainers = [
+        ("aqi_ridge", train_ridge, {}),
+        (
+            "aqi_random_forest",
+            train_random_forest,
+            {
+                "candidates": ({
+                    "n_estimators": 160,
+                    "max_depth": 24,
+                    "min_samples_leaf": 2,
+                    "max_features": "sqrt",
+                },)
+            } if selected_configuration else {},
+        ),
+    ]
+    if not selected_configuration:
+        trainers.append(("aqi_hgbt", train_hgbt, {}))
+    for name, trainer, kwargs in trainers:
+        model, params, elapsed, columns = trainer(split.train, split.validation, **kwargs)
         val_pred = model.predict(split.validation[columns])
         metrics = evaluate_predictions(split.validation[list(TARGET_COLUMNS)], val_pred, split.validation.city)
         results.append((name, model, params, columns, metrics, comparison_row(name, metrics, elapsed)))
@@ -39,11 +68,14 @@ def train_tabular(frame):
     return results, comparison, split
 
 
-def train_all(frame, skip_lstm=False):
-    results, comparison, split = train_tabular(frame)
+def train_all(frame, skip_lstm=False, selected_configuration=False):
+    results, comparison, split = train_tabular(frame, selected_configuration)
     lstm_result = None
     if not skip_lstm:
-        bundle, params, elapsed, columns = train_lstm(split.train, split.validation)
+        lstm_kwargs = {"sequence_lengths": (48,)} if selected_configuration else {}
+        bundle, params, elapsed, columns = train_lstm(
+            split.train, split.validation, **lstm_kwargs
+        )
         transformed = split.validation.copy()
         transformed[columns] = bundle["scaler"].transform(bundle["imputer"].transform(transformed[columns]))
         x_val, y_val, cities, _ = make_sequences(transformed, columns, bundle["sequence_length"])
@@ -60,6 +92,11 @@ def main():
     parser.add_argument("--hopsworks", action="store_true", help="Read from aqi_prediction_view v1")
     parser.add_argument("--register", action="store_true", help="Register trained artifacts in Hopsworks")
     parser.add_argument("--skip-lstm", action="store_true", help="Diagnostic tabular-only run")
+    parser.add_argument(
+        "--selected-configuration",
+        action="store_true",
+        help="Leakage-safe final fit using the validation-selected RF parameters and LSTM lookback",
+    )
     args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
     random.seed(42)
@@ -81,10 +118,15 @@ def main():
         frame = pd.read_parquet(path) if path.suffix == ".parquet" else pd.read_csv(path, parse_dates=["timestamp"])
     else:
         parser.error("Provide --hopsworks or --input")
+    source_stored_columns = len(frame.columns)
     selected, quality = audit_features(frame)
     keep = ["timestamp", *selected, *TARGET_COLUMNS]
     frame = frame[keep]
-    results, lstm_result, comparison, split = train_all(frame, skip_lstm=args.skip_lstm)
+    results, lstm_result, comparison, split = train_all(
+        frame,
+        skip_lstm=args.skip_lstm,
+        selected_configuration=args.selected_configuration,
+    )
     SETTINGS.artifacts_dir.mkdir(parents=True, exist_ok=True)
     baseline_rows = []
     for name, prediction in (("persistence", current_aqi_baseline(split.validation)),
@@ -185,6 +227,36 @@ def main():
     (SETTINGS.artifacts_dir / "best_model.json").write_text(
         json.dumps(best_model_doc, indent=2), encoding="utf-8"
     )
+    training_summary = {
+        "generated_by": "scripts.train_models",
+        "model_selection_split": "validation",
+        "final_evaluation_split": "test",
+        "source_stored_columns": int(source_stored_columns),
+        "training_columns": int(len(frame.columns)),
+        "candidate_features": int(len(quality)),
+        "valid_features": int(len(selected)),
+        "excluded": int((~quality["used_for_training"]).sum()),
+        "split_purge_hours": 72,
+        "leakage": leakage,
+        **split_summary(split),
+    }
+    (SETTINGS.artifacts_dir / "training_summary.json").write_text(
+        json.dumps(training_summary, indent=2), encoding="utf-8"
+    )
+
+    # Generate fresh explanations for every direct forecast output. A SHAP
+    # failure is fatal so stale plots cannot survive a successful training run.
+    rf_result = next((result for result in results if result[0] == "aqi_random_forest"), None)
+    if rf_result:
+        from src.explainability.shap_analysis import explain_random_forest
+
+        _, rf_model, _, rf_columns, _, _ = rf_result
+        explain_random_forest(
+            rf_model,
+            split.validation[rf_columns],
+            SETTINGS.artifacts_dir / "shap",
+            max_rows=100,
+        )
     if args.register:
         if not args.hopsworks:
             parser.error("--register requires --hopsworks so registry lineage is explicit")

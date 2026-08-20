@@ -7,10 +7,10 @@ Production-grade hourly AQI forecasting for Islamabad, Karachi, and Lahore. The 
 - 105,912 clean hourly city rows from 1 August 2022 through 10 August 2026 (35,304 per city).
 - No duplicate keys or timestamp gaps; 100 physically invalid source values were converted to missing before imputation.
 - 362 stored columns: timestamp, 354 selected predictors, three targets, and four audited exclusions.
-- Hopsworks Feature Group `aqi_features` v1, Feature View `aqi_prediction_view` v1, and Training Dataset v1 exist and were read back.
-- Ridge, Random Forest, and LSTM artifacts load successfully; all three are registered as version 1 in Hopsworks.
-- Random Forest is selected by validation RMSE (22.858); persistence is 27.562. LSTM was honestly retained despite underperforming (39.087).
-- 39 tests in suite; 33 pass on the current Python 3.14 environment; 5 model-reload tests require artifact retraining under sklearn ≥1.9 to resolve a version-mismatch (pre-existing condition, unrelated to this cleanup pass).
+- Hopsworks Feature Group `aqi_features` v1 and Feature View `aqi_prediction_view` v1 were read live; local retrained artifacts remain unregistered until an explicitly approved registry update.
+- Ridge, Random Forest, and LSTM were retrained locally with 72-hour partition purges and reload successfully with matching integrity metadata.
+- Random Forest is selected by leakage-safe validation RMSE (22.853); persistence is 27.581. The retrained LSTM remains behind RF but improves substantially (validation RMSE 23.946).
+- 50 Python tests and 8 frontend tests pass; frontend lint, typecheck, and production build also pass.
 
 ## Architecture
 
@@ -38,21 +38,21 @@ All temporal features and targets are calculated inside city groups. Targets are
 
 | Model | 24h RMSE | 48h RMSE | 72h RMSE | Overall RMSE | MAE | R² |
 |---|---:|---:|---:|---:|---:|---:|
-| Random Forest | 18.573 | 24.156 | 25.844 | **22.858** | 16.975 | 0.676 |
-| Ridge | 17.990 | 24.601 | 26.083 | 22.891 | **16.825** | 0.673 |
-| Persistence | 22.334 | 28.811 | 31.540 | 27.562 | 19.016 | 0.528 |
-| Seasonal persistence | 28.787 | 31.561 | 34.045 | 31.464 | 22.392 | 0.394 |
-| LSTM | 38.910 | 39.051 | 39.298 | 39.087 | 32.338 | 0.071 |
+| Random Forest | 18.495 | 24.164 | 25.901 | **22.853** | 16.989 | 0.669 |
+| Ridge | 17.959 | 24.607 | 26.199 | 22.922 | **16.807** | 0.665 |
+| Persistence | 22.330 | 28.780 | 31.633 | 27.581 | 19.011 | 0.518 |
+| Seasonal persistence | 28.835 | 31.643 | 34.176 | 31.551 | 22.441 | 0.377 |
+| LSTM | 20.117 | 24.940 | 26.782 | 23.946 | 17.873 | 0.639 |
 
 ### Final test set (chronological hold-out, never used for selection or tuning)
 
 | Model | 24h RMSE | 24h R² | 48h RMSE | 48h R² | 72h RMSE | 72h R² | Mean R² |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Random Forest | **18.931** | **0.827** | **24.351** | **0.712** | **26.342** | **0.662** | **0.734** |
-| Ridge | 18.561 | 0.833 | 25.999 | 0.672 | 27.829 | 0.622 | 0.709 |
-| LSTM | 43.835 | 0.064 | 44.189 | 0.043 | 44.248 | 0.033 | 0.046 |
+| Random Forest | **19.072** | **0.824** | **24.702** | **0.704** | **26.339** | **0.662** | **0.730** |
+| Ridge | 18.600 | 0.833 | 26.085 | 0.669 | 27.862 | 0.621 | 0.708 |
+| LSTM | 21.379 | 0.777 | 25.300 | 0.686 | 27.164 | 0.636 | 0.700 |
 
-Note: R² here is the coefficient of determination — not a classification accuracy. Full per-city test metrics are in `artifacts/city_metrics.csv`. SHAP identifies current AQI, short-window rolling statistics, recent AQI lags, episode state, and PM2.5 rolling values as the strongest RF drivers (all three horizons now have SHAP summary plots).
+Note: R² here is the coefficient of determination — not a classification accuracy. Full per-city test metrics are in `artifacts/city_metrics.csv`. Fresh RF SHAP summary plots and importance columns exist independently for 24h, 48h, and 72h.
 
 
 ## Setup and run

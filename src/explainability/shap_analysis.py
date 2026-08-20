@@ -11,6 +11,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from sklearn.multioutput import MultiOutputRegressor
 
 
 def _get_shap():
@@ -36,7 +37,7 @@ def _explain_tree_pipeline(pipeline, transformed, names, output_dir: Path, label
 
     # HGBT wraps a MultiOutputRegressor — unwrap to underlying estimators
     inner = pipeline.named_steps["model"]
-    if hasattr(inner, "estimators_"):
+    if isinstance(inner, MultiOutputRegressor):
         # MultiOutputRegressor
         all_importance = []
         for i, (horizon, est) in enumerate(zip(horizons, inner.estimators_)):
@@ -52,6 +53,8 @@ def _explain_tree_pipeline(pipeline, transformed, names, output_dir: Path, label
             })
             all_importance.append(importance.set_index("feature"))
         combined = pd.concat(all_importance, axis=1)
+        local_values = shap.TreeExplainer(inner.estimators_[0])(transformed[:1]).values[0]
+        local_prediction = float(inner.estimators_[0].predict(transformed[:1])[0])
     else:
         # Single multi-output estimator (e.g. RandomForest)
         explainer = shap.TreeExplainer(inner)
@@ -68,23 +71,36 @@ def _explain_tree_pipeline(pipeline, transformed, names, output_dir: Path, label
             })
             all_importance.append(importance.set_index("feature"))
         combined = pd.concat(all_importance, axis=1)
+        local_values = values.values[0, :, 0]
+        local_prediction = float(inner.predict(transformed[:1])[0, 0])
 
+    combined = combined.sort_values("mean_abs_shap_24h", ascending=False)
     combined.to_csv(output_dir / "top_features.csv")
 
-    # Individual explanation for the first sample at 24h horizon
-    first_row_shap = combined["mean_abs_shap_24h"].sort_values(ascending=False)
+    # A genuine local explanation: signed contributions for the first sample's
+    # 24-hour output, ranked by absolute magnitude.
+    local = sorted(
+        zip(names, transformed[0], local_values),
+        key=lambda item: abs(float(item[2])),
+        reverse=True,
+    )
     explanation = {
         "model": label,
         "prediction_output": "24h",
+        "prediction": local_prediction,
         "top_contributors": [
-            {"feature": feat, "mean_abs_shap_24h": float(val)}
-            for feat, val in first_row_shap.head(20).items()
+            {
+                "feature": feature,
+                "feature_value": float(feature_value),
+                "shap_value": float(shap_value),
+            }
+            for feature, feature_value, shap_value in local[:20]
         ],
     }
     (output_dir / "individual_explanation.json").write_text(
         json.dumps(explanation, indent=2), encoding="utf-8"
     )
-    return combined.sort_values("mean_abs_shap_24h", ascending=False)
+    return combined
 
 
 def explain_random_forest(pipeline, sample: pd.DataFrame, output_dir: Path, max_rows: int = 1000):

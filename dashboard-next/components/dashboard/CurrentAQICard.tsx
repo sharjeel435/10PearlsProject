@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { getAQICategory, getCategoryHex, getCategoryGuidance } from "@/lib/aqi";
+import { getAQICategory, getCategoryHex } from "@/lib/aqi";
 import AnimatedNumber from "@/components/motion/AnimatedNumber";
 import Tooltip from "@/components/ui/Tooltip";
 

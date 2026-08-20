@@ -45,7 +45,7 @@ jobs:
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
           HOPSWORKS_PROJECT: DataProject
           MODEL_NAME: aqi_random_forest
-          MODEL_VERSION: "1"
+          MODEL_VERSION: ${{ vars.MODEL_VERSION }}
           MODEL_SHA256: ${{ secrets.MODEL_SHA256 }}
           MODEL_CACHE_DIR: /tmp/.model-cache
         run: python -m scripts.predict --latest

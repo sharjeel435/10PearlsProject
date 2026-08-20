@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import {
   ResponsiveContainer,
-  AreaChart,
   Area,
   Line,
   ComposedChart,

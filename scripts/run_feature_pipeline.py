@@ -30,14 +30,20 @@ def incremental_frame(lookback_days: int = 9):
     cutoff = featured["timestamp"].max()
     result = featured[featured.timestamp == cutoff].copy()
     for target in TARGET_COLUMNS:
-        result[target] = pd.NA
+        # The historical Feature Group stores labels as doubles.  Keep the
+        # unavailable live labels numeric so incremental inserts preserve that
+        # schema instead of inferring an all-null object/string column.
+        result[target] = float("nan")
     return result
 
 
 def main():
     parser = argparse.ArgumentParser(); parser.add_argument("--upload", action="store_true"); args = parser.parse_args()
     logging.basicConfig(level=logging.INFO); frame = incremental_frame()
-    if args.upload: upload_features(connect().get_feature_store(), frame)
+    if args.upload:
+        upload_features(
+            connect().get_feature_store(), frame, wait=False, verify_readback=True
+        )
     print(f"Incremental rows prepared: {len(frame)}")
 
 
