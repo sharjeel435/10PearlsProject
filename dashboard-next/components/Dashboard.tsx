@@ -306,6 +306,7 @@ export default function Dashboard({ data }: { data: any }) {
             models={data.models || []}
             bestModel={data.best || {}}
             cityMetrics={data.cityMetrics || []}
+            trainingSummary={data.training || {}}
           />
         </section>
 

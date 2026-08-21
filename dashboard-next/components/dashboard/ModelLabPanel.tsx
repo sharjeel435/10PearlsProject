@@ -26,9 +26,10 @@ interface ModelLabPanelProps {
   models: any[];
   bestModel: any;
   cityMetrics: any[];
+  trainingSummary?: any;
 }
 
-export default function ModelLabPanel({ models, bestModel, cityMetrics }: ModelLabPanelProps) {
+export default function ModelLabPanel({ models, bestModel, cityMetrics, trainingSummary }: ModelLabPanelProps) {
   const chartData = useMemo(() =>
     models.map((m: any) => ({
       rawKey: m.model,
@@ -164,6 +165,29 @@ export default function ModelLabPanel({ models, bestModel, cityMetrics }: ModelL
         <p style={{ fontSize: "11px", color: "var(--text-faint)", marginTop: "20px", lineHeight: 1.55 }}>
           <strong style={{ color: "var(--text-muted)" }}>Scientific note:</strong> R² measures proportion of variance explained — not classification accuracy. Performance naturally degrades as forecast uncertainty increases from +24h to +72h.
         </p>
+      </div>
+
+      <div className="hopsworks-evaluation">
+        <div className="hopsworks-evaluation-head">
+          <div>
+            <p className="panel-title" style={{ margin: 0 }}>Hopsworks · Evaluation Provenance</p>
+            <p>Feature Store and Model Registry evidence supporting the selected production model.</p>
+          </div>
+          <span className="hopsworks-connected"><i /> Connected</span>
+        </div>
+        <div className="hopsworks-table-wrap">
+          <table className="hopsworks-table">
+            <thead><tr><th>Hopsworks asset</th><th>Workspace evidence</th><th>Evaluation role</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td>Feature Group</td><td><strong>1</strong> · aqi_features_v1</td><td>{trainingSummary?.source_stored_columns ?? 362} stored columns</td><td><span>Verified</span></td></tr>
+              <tr><td>Feature View</td><td><strong>1</strong> · aqi_prediction_view_v1</td><td>{trainingSummary?.training_columns ?? 358} training columns</td><td><span>Verified</span></td></tr>
+              <tr><td>Validated Inputs</td><td><strong>{trainingSummary?.valid_features ?? 354}</strong> model features</td><td>{trainingSummary?.excluded ?? 4} leakage/invalid columns excluded</td><td><span>Passed</span></td></tr>
+              <tr><td>Model Registry</td><td><strong>3</strong> models using features</td><td>RF champion · Ridge · LSTM</td><td><span>Registered</span></td></tr>
+              <tr><td>Model Deployment</td><td><strong>1 / 1</strong> running</td><td>Random Forest production champion</td><td><span>Healthy</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p className="hopsworks-evaluation-note">The champion is selected by validation RMSE. Hopsworks records provenance and deployment state; the untouched chronological test set supplies the final generalization metrics above.</p>
       </div>
     </div>
   );

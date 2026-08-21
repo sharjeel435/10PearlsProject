@@ -532,11 +532,31 @@
 .rule-insight-card p { margin: auto 0 0; padding-top: 18px; color: var(--text-secondary); font-size: .88rem; line-height: 1.45; }
 .rule-kicker { color: var(--accent); font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
 .rule-insights-empty { margin: 0; padding: 28px; color: var(--text-secondary); text-align: center; }
+.hopsworks-evaluation { padding-top: 28px; border-top: 1px solid var(--border-faint); }
+.hopsworks-evaluation-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 18px; }
+.hopsworks-evaluation-head > div > p:last-child { margin-top: 6px; color: var(--text-muted); font-size: 13px; }
+.hopsworks-connected { display: inline-flex; align-items: center; gap: 7px; color: var(--aqi-good); font-size: 10px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.hopsworks-connected i { width: 7px; height: 7px; border-radius: 50%; background: currentColor; box-shadow: 0 0 0 4px var(--aqi-good-bg); }
+.hopsworks-table-wrap { overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); }
+.hopsworks-table { width: 100%; min-width: 720px; border-collapse: collapse; text-align: left; }
+.hopsworks-table th { padding: 11px 16px; color: var(--text-faint); background: var(--bg-deep); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+.hopsworks-table td { padding: 14px 16px; color: var(--text-secondary); border-top: 1px solid var(--border-faint); font-size: 12px; }
+.hopsworks-table td:first-child { color: var(--text-primary); font-weight: 600; }
+.hopsworks-table td strong { color: var(--text-primary); font-size: 14px; }
+.hopsworks-table td:last-child span { color: var(--aqi-good); font-size: 10px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.hopsworks-evaluation-note { margin-top: 14px; color: var(--text-faint); font-size: 11px; line-height: 1.55; }
+@media (min-width: 801px) and (max-width: 1100px) {
+  .rule-insights { padding: 24px; }
+  .rule-insights-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rule-insight-wide { grid-column: 1 / -1; min-height: 170px; }
+  .rule-horizons button { min-width: 58px; min-height: 44px; }
+}
 @media (max-width: 800px) {
   .rule-insights-head { flex-direction: column; }
   .rule-insights-grid { grid-template-columns: 1fr; }
   .rule-horizons { width: 100%; }
-  .rule-horizons button { flex: 1; }
+  .rule-horizons button { flex: 1; min-height: 44px; }
+  .hopsworks-evaluation-head { flex-direction: column; gap: 10px; }
 }
 .weather-outlook-panel {
   margin-top: 48px;
