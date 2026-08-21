@@ -27,6 +27,11 @@ EPISODE_THRESHOLDS = {
 }
 
 
+def _model_version() -> int | None:
+    value = os.getenv("MODEL_VERSION", "1").strip().lower()
+    return None if value == "latest" else int(value)
+
+
 @dataclass(frozen=True)
 class Settings:
     historical_start: date = date(2022, 8, 1)
@@ -40,7 +45,9 @@ class Settings:
     feature_view_version: int = 1
     hopsworks_project: str = field(default_factory=lambda: os.getenv("HOPSWORKS_PROJECT", "DataProject"))
     model_name: str = field(default_factory=lambda: os.getenv("MODEL_NAME", "aqi_random_forest"))
-    model_version: int = field(default_factory=lambda: int(os.getenv("MODEL_VERSION", "1")))
+    # "latest" is used by the post-training forecast job. Serving deployments
+    # remain pinned by default for reproducibility and straightforward rollback.
+    model_version: int | None = field(default_factory=_model_version)
     model_sha256: str | None = field(default_factory=lambda: os.getenv("MODEL_SHA256") or None)
     model_cache_dir: Path = field(default_factory=lambda: Path(os.getenv("MODEL_CACHE_DIR", str(ROOT / ".model-cache"))))
     artifacts_dir: Path = ROOT / "artifacts"

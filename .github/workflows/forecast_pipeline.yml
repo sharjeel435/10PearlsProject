@@ -2,9 +2,9 @@ name: Daily forecast → commit artifacts → redeploy Vercel
 
 on:
   workflow_dispatch:
-  schedule:
-    # 03:00 UTC = 08:00 PKT (Pakistan Standard Time, UTC+5)
-    - cron: "0 3 * * *"
+  workflow_run:
+    workflows: ["Daily model training"]
+    types: [completed]
 
 permissions:
   contents: write
@@ -16,6 +16,10 @@ concurrency:
 
 jobs:
   forecast:
+    # Never publish forecasts from an older model when daily training failed.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event.workflow_run.conclusion == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -45,8 +49,7 @@ jobs:
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
           HOPSWORKS_PROJECT: DataProject
           MODEL_NAME: aqi_random_forest
-          MODEL_VERSION: ${{ vars.MODEL_VERSION }}
-          MODEL_SHA256: ${{ secrets.MODEL_SHA256 }}
+          MODEL_VERSION: latest
           MODEL_CACHE_DIR: /tmp/.model-cache
         run: python -m scripts.predict --latest
 
