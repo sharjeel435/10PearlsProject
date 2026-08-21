@@ -16,7 +16,7 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -e ".[hopsworks,lstm,explain,dev]"
+        run: pip install -e ".[hopsworks,lstm,explain,app,dev]"
 
       - name: Run leakage, artifact, and application quality gates
         run: pytest -q
