@@ -26,7 +26,7 @@ def _rf_columns():
     return bundle["feature_columns"]
 
 
-@pytest.mark.skipif(not RF_DIR.exists(), reason="RF artifact not trained yet")
+@pytest.mark.skipif(not (RF_DIR / "model.joblib").is_file(), reason="RF artifact not trained yet")
 class TestRandomForestReload:
     def test_rf_bundle_loads(self):
         """load_sklearn_bundle can reload the RF without error."""
@@ -66,7 +66,7 @@ class TestRandomForestReload:
         assert np.all(np.isfinite(preds)), "RF predictions contain NaN or Inf"
 
 
-@pytest.mark.skipif(not RIDGE_DIR.exists(), reason="Ridge artifact not trained yet")
+@pytest.mark.skipif(not (RIDGE_DIR / "model.joblib").is_file(), reason="Ridge artifact not trained yet")
 class TestRidgeReload:
     def test_ridge_bundle_loads(self):
         from src.prediction.predictor import load_sklearn_bundle
@@ -89,7 +89,11 @@ class TestRidgeReload:
         assert predictions.shape == (2, 3)
 
 
-@pytest.mark.skipif(not LSTM_DIR.exists(), reason="LSTM artifact not trained yet")
+@pytest.mark.skipif(
+    not (LSTM_DIR / "model.keras").is_file()
+    or not (LSTM_DIR / "preprocessing.joblib").is_file(),
+    reason="LSTM artifact not trained yet",
+)
 class TestLSTMReload:
     def test_lstm_keras_model_loads(self):
         try:
