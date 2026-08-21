@@ -14,6 +14,7 @@ import ForecastChart from "@/components/dashboard/ForecastChart";
 import KPIRail from "@/components/dashboard/KPIRail";
 import AirCompositionPanel from "@/components/dashboard/AirCompositionPanel";
 import WeatherPanel from "@/components/dashboard/WeatherPanel";
+import WeatherOutlookPanel from "@/components/dashboard/WeatherOutlookPanel";
 import HistoryPanel from "@/components/dashboard/HistoryPanel";
 import ModelLabPanel from "@/components/dashboard/ModelLabPanel";
 import FeatureIntelligencePanel from "@/components/dashboard/FeatureIntelligencePanel";
@@ -180,6 +181,7 @@ export default function Dashboard({ data }: { data: any }) {
               </div>
             </motion.div>
           </AnimatePresence>
+          <WeatherOutlookPanel city={city} outlooks={data.weatherOutlooks || []} />
         </section>
 
         {/* ═══════════════════════════════════════
