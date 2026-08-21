@@ -2,6 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import Papa from "papaparse";
 import { loadWeatherOutlooks } from "./openmeteo";
+import { loadLiveInsights } from "./live-insights";
 
 const artifact = (name: string) => path.join(process.cwd(), "data", name);
 
@@ -48,7 +49,7 @@ export type ModelMetric = {
 };
 
 export async function loadDashboardData() {
-  const [forecasts, observations, historical, models, training, quality, leakage, best, cityMetrics, features, individual, weatherOutlooks] = await Promise.all([
+  const [forecasts, observations, historical, models, training, quality, leakage, best, cityMetrics, features, individual, weatherOutlooks, ruleBasedInsights] = await Promise.all([
     json<Forecast[]>("latest_forecasts.json", []),
     json<Record<string, any>[]>("latest_observations.json", []),
     json<Record<string, any>[]>("historical_daily_30d.json", []),
@@ -61,6 +62,7 @@ export async function loadDashboardData() {
     csv<Record<string, any>>("shap/top_features.csv"),
     json<Record<string, any>>("shap/individual_explanation.json", {}),
     loadWeatherOutlooks(),
+    loadLiveInsights(),
   ]);
   const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
   if (apiBase) {
@@ -80,7 +82,7 @@ export async function loadDashboardData() {
       predicted_aqi_48h: item.forecasts?.["48h"]?.aqi, category_48h: item.forecasts?.["48h"]?.category, forecast_for_48h: item.forecasts?.["48h"]?.timestamp,
       predicted_aqi_72h: item.forecasts?.["72h"]?.aqi, category_72h: item.forecasts?.["72h"]?.category, forecast_for_72h: item.forecasts?.["72h"]?.timestamp,
     }));
-    return { forecasts: normalized, observations: validRemote.map((item: any) => item.latest_observation).filter(Boolean), historical, models, training, quality, leakage, best, cityMetrics, features: features.slice(0, 20), individual, weatherOutlooks };
+    return { forecasts: normalized, observations: validRemote.map((item: any) => item.latest_observation).filter(Boolean), historical, models, training, quality, leakage, best, cityMetrics, features: features.slice(0, 20), individual, weatherOutlooks, ruleBasedInsights };
   }
-  return { forecasts, observations, historical, models, training, quality, leakage, best, cityMetrics, features: features.slice(0, 20), individual, weatherOutlooks };
+  return { forecasts, observations, historical, models, training, quality, leakage, best, cityMetrics, features: features.slice(0, 20), individual, weatherOutlooks, ruleBasedInsights };
 }
