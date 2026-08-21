@@ -21,8 +21,12 @@ jobs:
       - name: Run leakage, artifact, and application quality gates
         run: pytest -q
 
-      - name: Train all models (Ridge, RF, HGBT, LSTM) and register
-        run: python -m scripts.train_models --hopsworks --register
+      - name: Retrain selected production configurations and register
+        run: >-
+          python -m scripts.train_models
+          --hopsworks
+          --register
+          --selected-configuration
         env:
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
           HOPSWORKS_PROJECT: DataProject
