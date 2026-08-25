@@ -38,13 +38,27 @@ def incremental_frame(lookback_days: int = 9):
 
 
 def main():
-    parser = argparse.ArgumentParser(); parser.add_argument("--upload", action="store_true"); args = parser.parse_args()
-    logging.basicConfig(level=logging.INFO); frame = incremental_frame()
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--upload", action="store_true")
+    args = parser.parse_args()
+    logging.basicConfig(level=logging.INFO)
+
+    frame = incremental_frame()
+    logging.info("Incremental rows prepared: %d", len(frame))
+
     if args.upload:
         upload_features(
-            connect().get_feature_store(), frame, wait=False, verify_readback=True
+            connect().get_feature_store(),
+            frame,
+            # Wait for the insertion job itself, but do not poll the eventually
+            # consistent offline store for another ten minutes afterward.
+            wait=True,
+            verify_readback=False,
         )
-    print(f"Incremental rows prepared: {len(frame)}")
+        logging.info("Feature upload completed successfully.")
+
+    print(f"Feature pipeline completed: {len(frame)} rows prepared.")
 
 
-if __name__ == "__main__": main()
+if __name__ == "__main__":
+    main()
