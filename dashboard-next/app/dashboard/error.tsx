@@ -1,17 +1,29 @@
-import Link from "next/link";
+"use client";
 
-export default function NotFound() {
+import Link from "next/link";
+import { useEffect } from "react";
+
+export default function DashboardError({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error("[DashboardError]", error);
+  }, [error]);
+
   return (
-    <main
+    <div
       style={{
-        minHeight: "100vh",
+        minHeight: "60vh",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
         justifyContent: "center",
         padding: "48px 4vw",
         textAlign: "center",
-        background: "var(--bg)",
       }}
     >
       <p
@@ -24,66 +36,75 @@ export default function NotFound() {
           marginBottom: "16px",
         }}
       >
-        Pearls Air Intelligence · 404
+        Dashboard Error
       </p>
 
-      <h1
+      <h2
         style={{
-          fontSize: "clamp(48px, 10vw, 96px)",
+          fontSize: "clamp(22px, 4vw, 36px)",
           fontWeight: 800,
-          letterSpacing: "-0.06em",
+          letterSpacing: "-0.04em",
           color: "var(--text-primary)",
-          lineHeight: 0.9,
-          marginBottom: "24px",
-        }}
-      >
-        404
-      </h1>
-
-      <p
-        style={{
-          fontSize: "16px",
-          fontWeight: 700,
-          color: "var(--text-primary)",
-          letterSpacing: "-0.02em",
           marginBottom: "12px",
         }}
       >
-        Page not found
-      </p>
+        Dashboard failed to load
+      </h2>
 
       <p
         style={{
           fontSize: "13px",
           color: "var(--text-muted)",
-          maxWidth: "400px",
+          maxWidth: "480px",
           lineHeight: 1.65,
-          marginBottom: "36px",
+          marginBottom: "32px",
         }}
       >
-        The page you&apos;re looking for doesn&apos;t exist or has been moved.
+        The forecast data could not be rendered. This may happen if the data
+        artifacts are being regenerated. Try refreshing, or go back to the
+        homepage.
       </p>
 
-      <div style={{ display: "flex", gap: "12px", flexWrap: "wrap", justifyContent: "center" }}>
-        <Link
-          href="/dashboard"
+      {error.digest && (
+        <p
           style={{
-            padding: "11px 24px",
+            fontSize: "11px",
+            color: "var(--text-faint)",
+            marginBottom: "24px",
+            fontFamily: "monospace",
+          }}
+        >
+          Error ref: {error.digest}
+        </p>
+      )}
+
+      <div
+        style={{
+          display: "flex",
+          gap: "12px",
+          flexWrap: "wrap",
+          justifyContent: "center",
+        }}
+      >
+        <button
+          onClick={reset}
+          style={{
+            padding: "10px 24px",
             background: "var(--accent)",
             color: "#04110d",
+            border: "none",
             borderRadius: "8px",
             fontWeight: 700,
             fontSize: "13px",
-            letterSpacing: "-0.01em",
-            textDecoration: "none",
+            cursor: "pointer",
           }}
         >
-          View forecast
-        </Link>
+          Retry
+        </button>
         <Link
           href="/"
           style={{
-            padding: "11px 24px",
+            padding: "10px 24px",
             border: "1px solid var(--border-medium)",
             color: "var(--text-muted)",
             borderRadius: "8px",
@@ -94,9 +115,9 @@ export default function NotFound() {
             textDecoration: "none",
           }}
         >
-          Homepage
+          Go home
         </Link>
       </div>
-    </main>
+    </div>
   );
 }

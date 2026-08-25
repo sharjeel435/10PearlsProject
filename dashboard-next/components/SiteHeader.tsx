@@ -18,11 +18,12 @@ export default function SiteHeader() {
   }, []);
 
   const links = [
-    { href: "/dashboard", label: "Dashboard" },
+    { href: "/dashboard", label: "Forecast" },
     { href: "/models", label: "Models" },
     { href: "/methodology", label: "Methodology" },
     { href: "/about", label: "About" },
   ];
+
 
   return (
     <header className={`site-navbar${scrolled ? " scrolled" : ""}`}>

@@ -22,17 +22,18 @@ import FeatureIntelligencePanel from "@/components/dashboard/FeatureIntelligence
 import DataFoundationPanel from "@/components/dashboard/DataFoundationPanel";
 import MLOpsPanel from "@/components/dashboard/MLOpsPanel";
 import AuditTrustPanel from "@/components/dashboard/AuditTrustPanel";
+import CityComparisonPanel from "@/components/dashboard/CityComparisonPanel";
+import PakistanCityMap from "@/components/dashboard/PakistanCityMap";
+import { toPKT } from "@/lib/formatters";
 
+// Condensed from 9 → 6 tabs for cleaner navigation
 const DASHBOARD_SECTIONS = [
   { id: "overview",     label: "Overview" },
   { id: "forecast",     label: "Forecast" },
-  { id: "composition",  label: "Air Composition" },
+  { id: "air-weather",  label: "Air & Weather" },
   { id: "history",      label: "History" },
-  { id: "models",       label: "Model Lab" },
-  { id: "features",     label: "Features" },
-  { id: "data",         label: "Data" },
+  { id: "ml-lab",       label: "ML Lab" },
   { id: "mlops",        label: "MLOps" },
-  { id: "audit",        label: "Audit" },
 ];
 
 export default function Dashboard({ data }: { data: any }) {
@@ -63,6 +64,12 @@ export default function Dashboard({ data }: { data: any }) {
     () => data.observations?.find((item: any) => item.city === city),
     [data.observations, city]
   );
+
+  // Determine if we're showing an observed AQI or falling back to forecast
+  const hasObservation = currentObservation?.us_aqi != null && Number.isFinite(currentObservation.us_aqi);
+  const displayAQI = hasObservation
+    ? currentObservation.us_aqi
+    : (currentForecast?.predicted_aqi_24h ?? currentForecast?.forecasts?.["24h"]?.aqi ?? null);
 
   const selectCity = (cityName: string) => {
     startTransition(() => {
@@ -96,6 +103,17 @@ export default function Dashboard({ data }: { data: any }) {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Extract forecast timestamps
+  const forecast24hTime = currentForecast?.forecast_for_24h ?? currentForecast?.forecasts?.["24h"]?.timestamp;
+  const forecast48hTime = currentForecast?.forecast_for_48h ?? currentForecast?.forecasts?.["48h"]?.timestamp;
+  const forecast72hTime = currentForecast?.forecast_for_72h ?? currentForecast?.forecasts?.["72h"]?.timestamp;
+  const forecast24hAQI  = currentForecast?.predicted_aqi_24h ?? currentForecast?.forecasts?.["24h"]?.aqi ?? null;
+  const forecast48hAQI  = currentForecast?.predicted_aqi_48h ?? currentForecast?.forecasts?.["48h"]?.aqi ?? null;
+  const forecast72hAQI  = currentForecast?.predicted_aqi_72h ?? currentForecast?.forecasts?.["72h"]?.aqi ?? null;
+
+  const generatedAt = currentForecast?.generated_at;
+  const observationAt = currentObservation?.timestamp;
+
   return (
     <main>
       <SiteHeader />
@@ -111,6 +129,7 @@ export default function Dashboard({ data }: { data: any }) {
                   key={sec.id}
                   className={`subnav-tab${isActive ? " active" : ""}`}
                   onClick={() => scrollToSection(sec.id)}
+                  aria-current={isActive ? "true" : undefined}
                 >
                   {sec.label}
                   {isActive && (
@@ -137,14 +156,14 @@ export default function Dashboard({ data }: { data: any }) {
 
         {/* Freshness indicator */}
         <FreshnessIndicator
-          observationTime={currentObservation?.timestamp}
-          generatedTime={currentForecast?.generated_at}
-          modelName="Random Forest"
+          observationTime={observationAt}
+          generatedTime={generatedAt}
+          modelName={currentForecast?.model === "aqi_random_forest" ? "Random Forest" : (currentForecast?.model ?? "Random Forest")}
           modelVersion={currentForecast?.model_version || 1}
         />
 
         {/* ═══════════════════════════════════════
-            SECTION 1 — COMMAND CENTER OVERVIEW
+            SECTION 1 — OVERVIEW
         ═══════════════════════════════════════ */}
         <section id="overview" className="section-anchor section-block">
 
@@ -160,8 +179,9 @@ export default function Dashboard({ data }: { data: any }) {
               <div className="command-hero-top">
                 <CurrentAQICard
                   city={city}
-                  aqi={currentObservation?.us_aqi ?? currentForecast?.predicted_aqi_24h}
-                  observationTimestamp={currentObservation?.timestamp}
+                  aqi={displayAQI}
+                  aqiIsObserved={hasObservation}
+                  observationTimestamp={hasObservation ? observationAt : forecast24hTime}
                   onExploreClick={() => setDrawerOpen(true)}
                 />
 
@@ -174,14 +194,31 @@ export default function Dashboard({ data }: { data: any }) {
                   </div>
 
                   <HealthIntelligenceCard
-                    currentAQI={currentObservation?.us_aqi ?? currentForecast?.predicted_aqi_24h}
-                    forecast72hAQI={currentForecast?.predicted_aqi_72h}
-                    primaryPollutant="PM2.5"
+                    currentAQI={displayAQI}
+                    forecast72hAQI={forecast72hAQI}
+                    observation={currentObservation}
                   />
                 </div>
               </div>
+
+              {/* City comparison + Pakistan map */}
+              <div className="city-overview-grid" style={{ marginTop: "32px" }}>
+                <CityComparisonPanel
+                  forecasts={data.forecasts || []}
+                  observations={data.observations || []}
+                  activeCity={city}
+                  onSelectCity={selectCity}
+                />
+                <PakistanCityMap
+                  forecasts={data.forecasts || []}
+                  observations={data.observations || []}
+                  activeCity={city}
+                  onSelectCity={selectCity}
+                />
+              </div>
             </motion.div>
           </AnimatePresence>
+
           <WeatherOutlookPanel city={city} outlooks={data.weatherOutlooks || []} />
           <RuleBasedInsightsPanel city={city} insights={data.ruleBasedInsights || []} />
         </section>
@@ -199,25 +236,26 @@ export default function Dashboard({ data }: { data: any }) {
               transition={{ duration: 0.25 }}
             >
               <ForecastJourney
-                currentAQI={currentObservation?.us_aqi}
-                forecast24h={currentForecast?.predicted_aqi_24h}
-                forecast48h={currentForecast?.predicted_aqi_48h}
-                forecast72h={currentForecast?.predicted_aqi_72h}
-                timestamp24h={currentForecast?.forecast_for_24h}
-                timestamp48h={currentForecast?.forecast_for_48h}
-                timestamp72h={currentForecast?.forecast_for_72h}
+                currentAQI={displayAQI}
+                forecast24h={forecast24hAQI}
+                forecast48h={forecast48hAQI}
+                forecast72h={forecast72hAQI}
+                timestamp24h={forecast24hTime}
+                timestamp48h={forecast48hTime}
+                timestamp72h={forecast72hTime}
               />
 
               <ForecastChart
                 city={city}
-                observationAQI={currentObservation?.us_aqi}
-                observationTime={currentObservation?.timestamp}
-                forecast24h={currentForecast?.predicted_aqi_24h}
-                forecast48h={currentForecast?.predicted_aqi_48h}
-                forecast72h={currentForecast?.predicted_aqi_72h}
-                time24h={currentForecast?.forecast_for_24h}
-                time48h={currentForecast?.forecast_for_48h}
-                time72h={currentForecast?.forecast_for_72h}
+                observationAQI={currentObservation?.us_aqi ?? null}
+                observationTime={observationAt}
+                forecast24h={forecast24hAQI}
+                forecast48h={forecast48hAQI}
+                forecast72h={forecast72hAQI}
+                time24h={forecast24hTime}
+                time48h={forecast48hTime}
+                time72h={forecast72hTime}
+                modelName="Random Forest"
               />
             </motion.div>
           </AnimatePresence>
@@ -229,20 +267,25 @@ export default function Dashboard({ data }: { data: any }) {
         <KPIRail
           totalRows={data.quality?.clean_records || 105912}
           featureCount={data.training?.valid_features || 354}
-          testR2={data.best?.final_test_metrics?.r2_24h ?? 0.827}
+          testR2_24h={data.best?.final_test_metrics?.r2_24h ?? 0.824}
           modelName="Random Forest"
           leakageGatesPassing={6}
         />
 
         {/* ═══════════════════════════════════════
-            SECTION 3 — AIR COMPOSITION & WEATHER
+            SECTION 3 — AIR & WEATHER
         ═══════════════════════════════════════ */}
-        <section id="composition" className="section-anchor section-block">
+        <section id="air-weather" className="section-anchor section-block">
           <div style={{ marginBottom: "36px" }}>
             <p className="section-label">Atmospheric telemetry</p>
-            <h2 className="section-heading">Chemical Composition &amp; Meteorological Context</h2>
+            <h2 className="section-heading">Air Composition &amp; Weather Context</h2>
             <p className="section-description">
-              In-situ particulate concentrations, trace gas telemetry, and thermodynamic dispersion vectors for {city}.
+              Particulate concentrations, trace gas measurements, and meteorological conditions for {city}.
+              {!hasObservation && (
+                <span style={{ color: "var(--aqi-moderate)", marginLeft: "6px" }}>
+                  · Observation data is stale — showing last available reading
+                </span>
+              )}
             </p>
           </div>
 
@@ -291,9 +334,12 @@ export default function Dashboard({ data }: { data: any }) {
         <div className="section-divider" />
 
         {/* ═══════════════════════════════════════
-            SECTION 5 — MODEL LAB
+            SECTION 5 — ML LAB
+            (Model + Features + Data + Audit combined)
         ═══════════════════════════════════════ */}
-        <section id="models" className="section-anchor section-block">
+        <section id="ml-lab" className="section-anchor section-block">
+
+          {/* Model Performance */}
           <div style={{ marginBottom: "36px" }}>
             <p className="section-label">Model benchmark &amp; evaluation</p>
             <h2 className="section-heading">Model Performance Laboratory</h2>
@@ -308,14 +354,10 @@ export default function Dashboard({ data }: { data: any }) {
             cityMetrics={data.cityMetrics || []}
             trainingSummary={data.training || {}}
           />
-        </section>
 
-        <div className="section-divider" />
+          <div className="section-divider" style={{ margin: "56px 0" }} />
 
-        {/* ═══════════════════════════════════════
-            SECTION 6 — FEATURE INTELLIGENCE
-        ═══════════════════════════════════════ */}
-        <section id="features" className="section-anchor section-block">
+          {/* Feature Intelligence */}
           <div style={{ marginBottom: "36px" }}>
             <p className="section-label">Feature engineering &amp; SHAP</p>
             <h2 className="section-heading">Feature Architecture &amp; Explainable AI</h2>
@@ -325,57 +367,52 @@ export default function Dashboard({ data }: { data: any }) {
           </div>
 
           <FeatureIntelligencePanel features={data.features || []} />
-        </section>
 
-        <div className="section-divider" />
+          <div className="section-divider" style={{ margin: "56px 0" }} />
 
-        {/* ═══════════════════════════════════════
-            SECTION 7 — DATA FOUNDATION
-        ═══════════════════════════════════════ */}
-        <section id="data" className="section-anchor section-block">
+          {/* Data Foundation */}
           <div style={{ marginBottom: "36px" }}>
             <p className="section-label">Data foundation &amp; quality</p>
             <h2 className="section-heading">Four Years of Verified Atmospheric Records</h2>
             <p className="section-description">
-              105,912 continuous hourly observations from Open-Meteo with zero missing hours and verified physical ranges.
+              105,912 continuous hourly observations from Open-Meteo with 100% timestamp coverage and verified physical ranges.
             </p>
           </div>
 
           <DataFoundationPanel qualityReport={data.quality || {}} />
+
+          <div className="section-divider" style={{ margin: "56px 0" }} />
+
+          {/* Audit & Trust */}
+          <div style={{ marginBottom: "36px" }}>
+            <p className="section-label">Trust &amp; governance</p>
+            <h2 className="section-heading">ML Quality Assessment &amp; Leakage Gates</h2>
+            <p className="section-description">
+              Automated self-assessment across data integrity, leakage protection, evaluation methodology, and reproducibility.
+            </p>
+          </div>
+
+          <AuditTrustPanel leakageReport={data.leakage || {}} />
         </section>
 
         <div className="section-divider" />
 
         {/* ═══════════════════════════════════════
-            SECTION 8 — MLOPS
+            SECTION 6 — MLOPS
         ═══════════════════════════════════════ */}
         <section id="mlops" className="section-anchor section-block">
           <div style={{ marginBottom: "36px" }}>
             <p className="section-label">MLOps &amp; automation</p>
             <h2 className="section-heading">End-to-End Automated Pipeline</h2>
             <p className="section-description">
-              Scheduled hourly ingestion, Hopsworks feature versioning, daily automated training, and edge API inference.
+              Scheduled hourly ingestion, Hopsworks feature versioning, daily automated training, and REST API inference.
             </p>
           </div>
 
-          <MLOpsPanel />
-        </section>
-
-        <div className="section-divider" />
-
-        {/* ═══════════════════════════════════════
-            SECTION 9 — AUDIT & TRUST
-        ═══════════════════════════════════════ */}
-        <section id="audit" className="section-anchor section-block">
-          <div style={{ marginBottom: "36px" }}>
-            <p className="section-label">Trust &amp; governance</p>
-            <h2 className="section-heading">Independent Audit &amp; Leakage Gates</h2>
-            <p className="section-description">
-              All 6 data leakage checks verified programmatically with reproducible test coverage and artifact integrity.
-            </p>
-          </div>
-
-          <AuditTrustPanel leakageReport={data.leakage || {}} />
+          <MLOpsPanel
+            generatedAt={generatedAt}
+            observationAt={observationAt}
+          />
         </section>
 
       </div>
@@ -386,18 +423,18 @@ export default function Dashboard({ data }: { data: any }) {
         onClose={() => setDrawerOpen(false)}
         city={city}
         topFeatures={data.features || []}
-        currentAQI={currentObservation?.us_aqi}
-        forecast24h={currentForecast?.predicted_aqi_24h}
+        currentAQI={displayAQI}
+        forecast24h={forecast24hAQI}
       />
 
       {/* Footer */}
       <footer className="site-footer">
         <span className="footer-brand">PEARLS AIR INTELLIGENCE</span>
         <span>
-          Artifact generated:{" "}
-          {currentForecast?.generated_at
-            ? new Date(currentForecast.generated_at).toUTCString()
-            : "Live"}
+          Forecast updated:{" "}
+          {generatedAt
+            ? toPKT(generatedAt)
+            : "Not available"}
         </span>
       </footer>
     </main>

@@ -3,6 +3,7 @@
 import { motion } from "motion/react";
 import { getAQICategory, getCategoryHex, calculateTrend } from "@/lib/aqi";
 import AnimatedNumber from "@/components/motion/AnimatedNumber";
+import { toPKT } from "@/lib/formatters";
 
 interface ForecastJourneyProps {
   currentAQI: number | null;
@@ -16,13 +17,7 @@ interface ForecastJourneyProps {
 
 function formatShortTime(ts?: string): string {
   if (!ts) return "";
-  return new Date(ts).toLocaleString("en-US", {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    timeZone: "UTC",
-    hour12: false,
-  }) + " UTC";
+  return toPKT(ts);
 }
 
 export default function ForecastJourney({

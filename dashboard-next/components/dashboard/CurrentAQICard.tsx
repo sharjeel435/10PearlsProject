@@ -2,12 +2,14 @@
 
 import { motion } from "motion/react";
 import { getAQICategory, getCategoryHex } from "@/lib/aqi";
+import { toPKT, toUTC, toRelative, getObservationFreshness, freshnessColor } from "@/lib/formatters";
 import AnimatedNumber from "@/components/motion/AnimatedNumber";
 import Tooltip from "@/components/ui/Tooltip";
 
 interface CurrentAQICardProps {
   city: string;
   aqi: number | null;
+  aqiIsObserved?: boolean; // true = real observation, false = forecast fallback
   observationTimestamp?: string | null;
   onExploreClick?: () => void;
 }
@@ -15,6 +17,7 @@ interface CurrentAQICardProps {
 export default function CurrentAQICard({
   city,
   aqi,
+  aqiIsObserved = true,
   observationTimestamp,
   onExploreClick,
 }: CurrentAQICardProps) {
@@ -22,22 +25,9 @@ export default function CurrentAQICard({
   const category = aqi != null ? getAQICategory(numericAqi) : "Moderate";
   const colorHex = getCategoryHex(category);
 
-  const formattedDate = observationTimestamp
-    ? new Date(observationTimestamp).toLocaleDateString("en-US", {
-        day: "numeric",
-        month: "short",
-        timeZone: "UTC",
-      })
-    : null;
-
-  const formattedTime = observationTimestamp
-    ? new Date(observationTimestamp).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
-        timeZone: "UTC",
-        hour12: false,
-      }) + " UTC"
-    : null;
+  const freshness = getObservationFreshness(observationTimestamp);
+  const isStale = freshness === "stale" || freshness === "very-stale";
+  const freshnessHex = freshnessColor(freshness);
 
   return (
     <motion.div
@@ -61,7 +51,21 @@ export default function CurrentAQICard({
         />
         {city}, Pakistan
       </p>
-      <p className="aqi-observation-label">Current observed air quality</p>
+      <p className="aqi-observation-label">
+        {aqiIsObserved ? "Latest measured air quality" : "Most recent forecast AQI"}
+      </p>
+
+      {/* Staleness warning */}
+      {isStale && aqiIsObserved && (
+        <div
+          className="aqi-stale-warning"
+          role="alert"
+          aria-live="polite"
+        >
+          <span style={{ color: "var(--aqi-moderate)" }}>⚠</span>
+          {" "}Observation is {toRelative(observationTimestamp)} — forecast may not reflect current conditions
+        </div>
+      )}
 
       {/* Iconic AQI number */}
       <div className="aqi-number-display">
@@ -91,19 +95,25 @@ export default function CurrentAQICard({
       </p>
 
       {/* Timestamp */}
-      {(formattedDate || formattedTime) && (
+      {observationTimestamp && (
         <p className="aqi-timestamp-line">
-          <span>LAST OBSERVED</span>
+          <span>{aqiIsObserved ? "LAST OBSERVED" : "FORECAST FOR"}</span>
           <span className="aqi-timestamp-sep" />
-          {formattedDate && (
-            <span style={{ color: "var(--text-muted)" }}>{formattedDate}</span>
-          )}
-          {formattedDate && formattedTime && (
-            <span className="aqi-timestamp-sep" />
-          )}
-          {formattedTime && (
-            <span style={{ color: "var(--text-muted)" }}>{formattedTime}</span>
-          )}
+          <span
+            style={{ color: isStale ? "var(--aqi-moderate)" : "var(--text-muted)" }}
+            title={`UTC: ${toUTC(observationTimestamp)}`}
+          >
+            {toPKT(observationTimestamp)}
+          </span>
+          <span className="aqi-timestamp-sep" />
+          <span
+            style={{
+              color: isStale ? freshnessHex : "var(--text-faint)",
+              fontSize: "10px",
+            }}
+          >
+            {toRelative(observationTimestamp)}
+          </span>
         </p>
       )}
 

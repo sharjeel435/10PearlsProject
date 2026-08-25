@@ -1,5 +1,53 @@
 [
-  {"city":"Karachi","timestamp":"2026-08-10T23:00:00.000Z","us_aqi":71.0,"pm2_5":17.5,"pm10":36.3,"nitrogen_dioxide":5.1,"sulphur_dioxide":4.2,"carbon_monoxide":108.0,"ozone":45.0,"temperature_2m":27.1,"relative_humidity_2m":86.0,"wind_speed_10m":12.7,"wind_direction_10m":263,"surface_pressure":999.9,"precipitation":0.0},
-  {"city":"Islamabad","timestamp":"2026-08-10T23:00:00.000Z","us_aqi":95.0,"pm2_5":33.3,"pm10":35.5,"nitrogen_dioxide":19.2,"sulphur_dioxide":8.9,"carbon_monoxide":414.0,"ozone":88.0,"temperature_2m":24.9,"relative_humidity_2m":93.0,"wind_speed_10m":8.1,"wind_direction_10m":39,"surface_pressure":943.0,"precipitation":0.3},
-  {"city":"Lahore","timestamp":"2026-08-10T23:00:00.000Z","us_aqi":158.0,"pm2_5":60.3,"pm10":61.9,"nitrogen_dioxide":19.9,"sulphur_dioxide":14.8,"carbon_monoxide":478.0,"ozone":71.0,"temperature_2m":28.3,"relative_humidity_2m":94.0,"wind_speed_10m":6.4,"wind_direction_10m":128,"surface_pressure":975.3,"precipitation":0.0}
+  {
+    "city": "Karachi",
+    "timestamp": "2026-08-24T23:00:00+00:00",
+    "us_aqi": 92.0,
+    "pm2_5": 22.4,
+    "pm10": 57.6,
+    "nitrogen_dioxide": 9.6,
+    "sulphur_dioxide": 6.1,
+    "carbon_monoxide": 130.0,
+    "ozone": 38.0,
+    "temperature_2m": 26.2,
+    "relative_humidity_2m": 89.0,
+    "wind_speed_10m": 8.7,
+    "wind_direction_10m": 252,
+    "surface_pressure": 1003.8,
+    "precipitation": 0.0
+  },
+  {
+    "city": "Lahore",
+    "timestamp": "2026-08-24T23:00:00+00:00",
+    "us_aqi": 162.0,
+    "pm2_5": 94.3,
+    "pm10": 114.6,
+    "nitrogen_dioxide": 86.2,
+    "sulphur_dioxide": 19.3,
+    "carbon_monoxide": 514.0,
+    "ozone": 4.0,
+    "temperature_2m": 28.4,
+    "relative_humidity_2m": 84.0,
+    "wind_speed_10m": 4.0,
+    "wind_direction_10m": 122,
+    "surface_pressure": 978.1,
+    "precipitation": 0.0
+  },
+  {
+    "city": "Islamabad",
+    "timestamp": "2026-08-24T23:00:00+00:00",
+    "us_aqi": 120.0,
+    "pm2_5": 36.7,
+    "pm10": 41.9,
+    "nitrogen_dioxide": 48.0,
+    "sulphur_dioxide": 7.4,
+    "carbon_monoxide": 588.0,
+    "ozone": 28.0,
+    "temperature_2m": 24.9,
+    "relative_humidity_2m": 81.0,
+    "wind_speed_10m": 6.2,
+    "wind_direction_10m": 36,
+    "surface_pressure": 945.9,
+    "precipitation": 0.0
+  }
 ]

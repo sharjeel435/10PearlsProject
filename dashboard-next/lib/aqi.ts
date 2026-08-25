@@ -115,11 +115,21 @@ export function formatFeatureName(raw: string): string {
   return name.charAt(0).toUpperCase() + name.slice(1);
 }
 
+/** Short label for compact UI, e.g. badge displays */
+export function getCategoryShortLabel(category: string): string {
+  if (category.includes("Hazardous")) return "Hazardous";
+  if (category.includes("Very Unhealthy")) return "Very Unhealthy";
+  if (category.includes("Sensitive")) return "Sensitive Groups";
+  if (category.includes("Unhealthy")) return "Unhealthy";
+  if (category.includes("Moderate")) return "Moderate";
+  return "Good";
+}
+
 export function getCardinalDirection(deg: number | null): string {
   if (deg === null || !Number.isFinite(deg)) return "—";
   const directions = [
     "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE",
-    "S", "SSW", "SW", "WSW", "W", "WSW", "NW", "NNW"
+    "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"
   ];
   const normalized = ((deg % 360) + 360) % 360;
   const index = Math.round(normalized / 22.5) % 16;

@@ -7,7 +7,7 @@ import Tooltip from "@/components/ui/Tooltip";
 interface KPIRailProps {
   totalRows?: number;
   featureCount?: number;
-  testR2?: number;
+  testR2_24h?: number; // actual 24h test R² — 0.824
   modelName?: string;
   leakageGatesPassing?: number;
 }
@@ -15,7 +15,7 @@ interface KPIRailProps {
 export default function KPIRail({
   totalRows = 105912,
   featureCount = 354,
-  testR2 = 0.827,
+  testR2_24h = 0.824,  // from best_model.json r2_24h
   modelName = "Random Forest",
   leakageGatesPassing = 6,
 }: KPIRailProps) {
@@ -24,8 +24,8 @@ export default function KPIRail({
       number: totalRows.toLocaleString(),
       isAnimated: false,
       label: "Observations",
-      sub: "4 years continuous · UTC",
-      tooltip: "105,912 continuous hourly observations across Karachi, Lahore, and Islamabad from 2022 to 2026.",
+      sub: "4 years continuous · hourly",
+      tooltip: "105,912 continuous hourly observations across Karachi, Lahore, and Islamabad from Aug 2022 to Aug 2026.",
     },
     {
       number: featureCount,
@@ -35,26 +35,26 @@ export default function KPIRail({
       tooltip: "354 features selected from 362 candidate columns after automated leakage prevention and duplicate elimination.",
     },
     {
-      value: testR2,
+      value: testR2_24h,
       isAnimated: true,
       decimals: 3,
       label: "24h Test R²",
       sub: "Untouched chronological partition",
-      tooltip: "R² (Coefficient of Determination) measures proportion of variance explained. It is not percentage accuracy.",
+      tooltip: "R² on the final unseen test set (Dec 2025 – Aug 2026). Measures proportion of variance explained — not classification accuracy. R²=1.0 is perfect; 0.824 is strong for a 24-hour atmospheric forecast.",
     },
     {
       number: modelName,
       isAnimated: false,
       label: "Production Model",
       sub: "Selected on validation RMSE",
-      tooltip: "Random Forest (160 estimators, max depth 24) outperformed Ridge and LSTM on the validation set.",
+      tooltip: "Random Forest (160 estimators, max depth 24) outperformed Ridge and LSTM on overall validation RMSE, despite Ridge achieving lower +24h RMSE individually.",
     },
     {
       number: `${leakageGatesPassing} / 6`,
       isAnimated: false,
       label: "Leakage Gates",
       sub: "All safety checks passing",
-      tooltip: "6 automated checks: cross-city isolation, targets, trailing rolling windows, train-only scaling, chronology, LSTM safety.",
+      tooltip: "6 automated leakage checks: cross-city isolation, targets, trailing rolling windows, train-only scaling, chronology, LSTM sequence safety.",
     },
   ];
 

@@ -2,6 +2,9 @@ name: Daily forecast → commit artifacts → redeploy Vercel
 
 on:
   workflow_dispatch:
+  # Run independently every day at 05:00 UTC (10:00 PKT) even if training didn't fire
+  schedule:
+    - cron: "0 5 * * *"
   workflow_run:
     workflows: ["Daily model training"]
     types: [completed]
@@ -16,10 +19,12 @@ concurrency:
 
 jobs:
   forecast:
-    # Never publish forecasts from an older model when daily training failed.
+    # Allow: manual dispatch, scheduled run, or successful training trigger
     if: >-
       github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'schedule' ||
       github.event.workflow_run.conclusion == 'success'
+
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -52,6 +57,9 @@ jobs:
           MODEL_VERSION: latest
           MODEL_CACHE_DIR: /tmp/.model-cache
         run: python -m scripts.predict --latest
+
+      - name: Refresh latest observations from Open-Meteo
+        run: python -m scripts.refresh_observations
 
       - name: Export frontend historical data
         env:

@@ -1,55 +1,104 @@
 "use client";
 
-import { AlertTriangle, RefreshCw } from "lucide-react";
+import { useEffect } from "react";
 
-export default function ErrorPage({
+export default function GlobalError({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
+  useEffect(() => {
+    console.error("[GlobalError]", error);
+  }, [error]);
+
   return (
-    <main
-      style={{
-        minHeight: "100vh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "40px 20px",
-        textAlign: "center",
-      }}
-    >
-      <div
+    <html lang="en">
+      <body
         style={{
-          width: "56px",
-          height: "56px",
-          borderRadius: "var(--radius-md)",
-          background: "rgba(239, 68, 68, 0.1)",
-          color: "var(--aqi-unhealthy)",
-          display: "grid",
-          placeItems: "center",
-          marginBottom: "20px",
+          background: "#060c0f",
+          color: "#eef5f5",
+          fontFamily: "system-ui, -apple-system, sans-serif",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          padding: "40px",
+          textAlign: "center",
+          margin: 0,
         }}
       >
-        <AlertTriangle size={28} />
-      </div>
+        <p
+          style={{
+            fontSize: "10px",
+            fontWeight: 700,
+            letterSpacing: "0.14em",
+            color: "#384a4e",
+            textTransform: "uppercase",
+            marginBottom: "16px",
+          }}
+        >
+          Pearls Air Intelligence
+        </p>
 
-      <span className="eyebrow-tag" style={{ color: "var(--aqi-unhealthy)", marginBottom: "8px" }}>
-        SYSTEM STATE
-      </span>
+        <h1
+          style={{
+            fontSize: "clamp(28px, 5vw, 48px)",
+            fontWeight: 800,
+            letterSpacing: "-0.04em",
+            marginBottom: "16px",
+            lineHeight: 1.05,
+          }}
+        >
+          Something went wrong
+        </h1>
 
-      <h1 style={{ fontSize: "clamp(28px, 4vw, 42px)", fontWeight: 800, color: "var(--text-primary)", marginBottom: "12px" }}>
-        Forecast Temporarily Unavailable
-      </h1>
+        <p
+          style={{
+            fontSize: "14px",
+            color: "#576b70",
+            maxWidth: "480px",
+            lineHeight: 1.65,
+            marginBottom: "32px",
+          }}
+        >
+          An unexpected error occurred while rendering the dashboard. The error
+          has been logged. Try refreshing — if the problem persists, the data
+          pipeline may be regenerating artifacts.
+        </p>
 
-      <p style={{ fontSize: "15px", color: "var(--text-secondary)", maxWidth: "480px", lineHeight: 1.6, marginBottom: "28px" }}>
-        The interface could not load a verified forecast artifact from the repository. In accordance with our scientific transparency policy, no synthetic placeholder measurements are shown.
-      </p>
+        {error.digest && (
+          <p
+            style={{
+              fontSize: "11px",
+              color: "#384a4e",
+              marginBottom: "24px",
+              fontFamily: "monospace",
+            }}
+          >
+            Ref: {error.digest}
+          </p>
+        )}
 
-      <button onClick={reset} className="btn-primary" style={{ gap: "10px" }}>
-        <RefreshCw size={16} /> Try Again
-      </button>
-    </main>
+        <button
+          onClick={reset}
+          style={{
+            padding: "12px 28px",
+            background: "#10b981",
+            color: "#04110d",
+            border: "none",
+            borderRadius: "8px",
+            fontWeight: 700,
+            fontSize: "14px",
+            cursor: "pointer",
+            letterSpacing: "-0.01em",
+          }}
+        >
+          Try again
+        </button>
+      </body>
+    </html>
   );
 }
