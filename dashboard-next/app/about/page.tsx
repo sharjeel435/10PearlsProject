@@ -20,9 +20,10 @@ const stack = [
   { name: "Hopsworks",      role: "Feature Store · aqi_features_v1" },
   { name: "scikit-learn",   role: "Random Forest regressor · Joblib artifacts" },
   { name: "SHAP",           role: "TreeExplainer · Global feature importance" },
-  { name: "FastAPI",        role: "Type-safe inference microservice" },
-  { name: "Next.js 16",     role: "Edge visualization dashboard" },
+  { name: "GitHub Actions", role: "Daily pipeline · Forecast + observation refresh" },
+  { name: "Next.js 16",     role: "Edge visualization · Static JSON serving via Vercel" },
 ];
+
 
 export default function AboutPage() {
   return (
@@ -52,7 +53,7 @@ export default function AboutPage() {
               A complete ML observability system
             </h2>
             <p style={{ fontSize: "13px", color: "var(--text-muted)", lineHeight: 1.65 }}>
-              A high-precision operational interface atop a complete Python ML ecosystem: Open-Meteo atmospheric ingestion, Hopsworks Feature Store versioning, scikit-learn Random Forest regression, SHAP tree explainers, FastAPI edge endpoints, and automated GitHub Actions workflows.
+              A high-precision operational interface atop a complete Python ML ecosystem: Open-Meteo atmospheric ingestion, Hopsworks Feature Store versioning, scikit-learn Random Forest regression, SHAP tree explainers, and a GitHub Actions pipeline that commits fresh forecast artifacts daily for zero-latency Vercel CDN serving.
             </p>
           </div>
           <div style={{ padding: "32px 0 32px 32px" }}>

@@ -4,6 +4,9 @@
 .env.production
 API.txt
 
+# ── Generated scratch outputs ─────────────────────────────────────────────────
+scripts/pakistan_svg_path.txt
+
 # ── Python bytecode and caches ────────────────────────────────────────────────
 __pycache__/
 *.py[cod]

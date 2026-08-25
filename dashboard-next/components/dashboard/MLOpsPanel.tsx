@@ -65,7 +65,7 @@ export default function MLOpsPanel({ generatedAt, observationAt }: MLOpsPanelPro
     },
     {
       name: "Forecast Generation",
-      desc: "FastAPI REST microservice serving multi-horizon forecasts (+24h, +48h, +72h) with artifact integrity checks.",
+      desc: "GitHub Actions runs daily: predict.py generates forecasts, refresh_observations.py fetches live readings from Open-Meteo, artifacts committed to repo, Vercel redeploys automatically.",
       statusLabel: pipelineStatus.label,
       statusColor: pipelineStatus.color,
       note: generatedAt ? `Generated: ${toRelative(generatedAt)} (${toPKT(generatedAt)})` : null,

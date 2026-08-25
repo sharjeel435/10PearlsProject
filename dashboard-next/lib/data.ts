@@ -4,6 +4,16 @@ import Papa from "papaparse";
 import { loadWeatherOutlooks } from "./openmeteo";
 import { loadLiveInsights } from "./live-insights";
 
+// ─── Architecture note ────────────────────────────────────────────────────────
+// This platform uses a static-first ML serving pattern:
+//   GitHub Actions (daily) → scripts/predict.py + scripts/refresh_observations.py
+//   → artifacts/*.json  → dashboard-next/data/ (via sync-artifacts.mjs)
+//   → git commit → Vercel auto-redeploy
+//
+// All forecast and observation data is served as pre-built static JSON.
+// No live API server is required or used.
+// ─────────────────────────────────────────────────────────────────────────────
+
 const artifact = (name: string) => path.join(process.cwd(), "data", name);
 
 /** Read a JSON artifact — returns `fallback` if the file is missing. */
@@ -49,7 +59,21 @@ export type ModelMetric = {
 };
 
 export async function loadDashboardData() {
-  const [forecasts, observations, historical, models, training, quality, leakage, best, cityMetrics, features, individual, weatherOutlooks, ruleBasedInsights] = await Promise.all([
+  const [
+    forecasts,
+    observations,
+    historical,
+    models,
+    training,
+    quality,
+    leakage,
+    best,
+    cityMetrics,
+    features,
+    individual,
+    weatherOutlooks,
+    ruleBasedInsights,
+  ] = await Promise.all([
     json<Forecast[]>("latest_forecasts.json", []),
     json<Record<string, any>[]>("latest_observations.json", []),
     json<Record<string, any>[]>("historical_daily_30d.json", []),
@@ -64,25 +88,20 @@ export async function loadDashboardData() {
     loadWeatherOutlooks(),
     loadLiveInsights(),
   ]);
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE_URL?.replace(/\/$/, "");
-  if (apiBase) {
-    const cities = forecasts.length
-      ? forecasts.map((s) => s.city)
-      : ["Karachi", "Lahore", "Islamabad"];
-    const remote = await Promise.all(cities.map(async (city) => {
-      try {
-        const response = await fetch(`${apiBase}/forecast/${encodeURIComponent(String(city))}`, { next: { revalidate: 300 } });
-        return response.ok ? await response.json() : forecasts.find((f) => f.city === city) ?? null;
-      } catch { return forecasts.find((f) => f.city === city) ?? null; }
-    }));
-    const validRemote = remote.filter(Boolean);
-    const normalized = validRemote.map((item: any) => item.predicted_aqi_24h ? item : ({
-      ...item, model: item.model_info?.name, model_version: item.model_info?.version,
-      predicted_aqi_24h: item.forecasts?.["24h"]?.aqi, category_24h: item.forecasts?.["24h"]?.category, forecast_for_24h: item.forecasts?.["24h"]?.timestamp,
-      predicted_aqi_48h: item.forecasts?.["48h"]?.aqi, category_48h: item.forecasts?.["48h"]?.category, forecast_for_48h: item.forecasts?.["48h"]?.timestamp,
-      predicted_aqi_72h: item.forecasts?.["72h"]?.aqi, category_72h: item.forecasts?.["72h"]?.category, forecast_for_72h: item.forecasts?.["72h"]?.timestamp,
-    }));
-    return { forecasts: normalized, observations: validRemote.map((item: any) => item.latest_observation).filter(Boolean), historical, models, training, quality, leakage, best, cityMetrics, features: features.slice(0, 20), individual, weatherOutlooks, ruleBasedInsights };
-  }
-  return { forecasts, observations, historical, models, training, quality, leakage, best, cityMetrics, features: features.slice(0, 20), individual, weatherOutlooks, ruleBasedInsights };
+
+  return {
+    forecasts,
+    observations,
+    historical,
+    models,
+    training,
+    quality,
+    leakage,
+    best,
+    cityMetrics,
+    features: features.slice(0, 20),
+    individual,
+    weatherOutlooks,
+    ruleBasedInsights,
+  };
 }

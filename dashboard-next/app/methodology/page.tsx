@@ -7,7 +7,12 @@ const stages = [
   { num: "04", title: "Hopsworks Feature Store", sub: "Versioned feature group",   detail: "Stores curated features under aqi_features_v1 with explicit schemas, metadata tracking, and online/offline parity." },
   { num: "05", title: "Chronological Split",    sub: "70 / 15 / 15 chrono",      detail: "Partitions 105,912 records chronologically: Train (Aug 2022–May 2025), Validation (May 2025–Dec 2025), and Untouched Test (Dec 2025–Aug 2026)." },
   { num: "06", title: "Model Tournament",       sub: "5 candidate architectures", detail: "Trains Ridge, Random Forest, LSTM (and baselines) across +24h, +48h, and +72h horizons. Random Forest selected on overall validation RMSE." },
-  { num: "07", title: "FastAPI Inference",      sub: "SHA-256 verified endpoint", detail: "Serves low-latency multi-horizon AQI forecasts via FastAPI with SHA-256 artifact checksums and structured validation." },
+  {
+    num: "07",
+    title: "Static Artifact Serving",
+    sub: "GitHub Actions → Vercel CDN",
+    detail: "Forecast and observation JSON are committed to the repository by the daily GitHub Actions pipeline. Vercel detects the push and redeploys within minutes — zero infrastructure to manage, zero latency on read.",
+  },
   { num: "08", title: "Next.js Dashboard",      sub: "This interface",            detail: "Renders forecast intelligence, health guidance, SHAP explainability, and full technical receipts. Rebuilt as statically generated, revalidating every 30 minutes." },
 ];
 
