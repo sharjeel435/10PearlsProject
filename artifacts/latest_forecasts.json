@@ -1,7 +1,7 @@
 [
   {
     "city": "Islamabad",
-    "generated_at": "2026-08-26T04:13:42.658966+00:00",
+    "generated_at": "2026-08-26T05:24:36.371292+00:00",
     "model": "aqi_random_forest",
     "model_version": 8,
     "forecast_for_24h": "2026-08-26T23:00:00+00:00",
@@ -16,7 +16,7 @@
   },
   {
     "city": "Karachi",
-    "generated_at": "2026-08-26T04:13:42.659423+00:00",
+    "generated_at": "2026-08-26T05:24:36.371728+00:00",
     "model": "aqi_random_forest",
     "model_version": 8,
     "forecast_for_24h": "2026-08-26T23:00:00+00:00",
@@ -31,17 +31,17 @@
   },
   {
     "city": "Lahore",
-    "generated_at": "2026-08-26T04:13:42.659794+00:00",
+    "generated_at": "2026-08-26T05:24:36.372107+00:00",
     "model": "aqi_random_forest",
     "model_version": 8,
     "forecast_for_24h": "2026-08-26T23:00:00+00:00",
     "predicted_aqi_24h": 151.4649421023402,
     "category_24h": "Unhealthy",
     "forecast_for_48h": "2026-08-27T23:00:00+00:00",
-    "predicted_aqi_48h": 135.50144280148567,
+    "predicted_aqi_48h": 135.5014428014857,
     "category_48h": "Unhealthy for Sensitive Groups",
     "forecast_for_72h": "2026-08-28T23:00:00+00:00",
-    "predicted_aqi_72h": 141.8856181111345,
+    "predicted_aqi_72h": 141.88561811113448,
     "category_72h": "Unhealthy for Sensitive Groups"
   }
 ]
