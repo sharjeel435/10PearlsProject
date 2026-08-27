@@ -61,3 +61,7 @@ dashboard-next/tsconfig.tsbuildinfo
 # ── Frontend environment files ────────────────────────────────────────────────
 dashboard-next/.env.local
 dashboard-next/.env.production.local
+
+# ── Auto-generated Next.js agent/AI files (re-created by next dev, not project docs) ──
+dashboard-next/AGENTS.md
+dashboard-next/CLAUDE.md

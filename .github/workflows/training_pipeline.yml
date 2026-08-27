@@ -1,15 +1,26 @@
 name: Daily model training
+
 on:
   schedule:
     - cron: "0 3 * * *"
   workflow_dispatch:
+
+# Training always succeeds from Open-Meteo data.
+# Hopsworks registration is a best-effort optional step.
+concurrency:
+  group: pearls-aqi-training
+  cancel-in-progress: false
+
 jobs:
   train:
     runs-on: ubuntu-latest
     timeout-minutes: 180
+
     steps:
+      # ── 1. Checkout ──────────────────────────────────────────────────────────
       - uses: actions/checkout@v4
 
+      # ── 2. Python ────────────────────────────────────────────────────────────
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
@@ -18,15 +29,63 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[hopsworks,lstm,explain,app,dev]"
 
+      # ── 3. Quality gates (must pass before any training) ─────────────────────
       - name: Run leakage, artifact, and application quality gates
         run: pytest -q
 
-      - name: Retrain selected production configurations and register
+      # ── 4. Fetch training data directly from Open-Meteo Archive ──────────────
+      # This step has NO Hopsworks dependency: it fetches Aug 2022 → yesterday
+      # from the Open-Meteo Archive API and writes a local Parquet snapshot.
+      # If the Open-Meteo API is temporarily unavailable the job fails here
+      # (before training) with a clear error, not silently mid-training.
+      - name: Build training dataset from Open-Meteo Archive
+        run: >-
+          python -m scripts.historical_backfill
+          --output /tmp/pearls_training_snapshot.parquet
+
+      # ── 5. Train all models from the local snapshot ───────────────────────────
+      # Completely Hopsworks-independent. Produces all artifacts under artifacts/.
+      - name: Train and evaluate all models
         run: >-
           python -m scripts.train_models
-          --hopsworks
-          --register
+          --input /tmp/pearls_training_snapshot.parquet
           --selected-configuration
+
+      # ── 6. Upload features to Hopsworks Feature Store (optional) ─────────────
+      # Keeps the Feature Store in sync so the Feature View reflects the latest
+      # data. Non-blocking: a Hopsworks outage does NOT fail training.
+      - name: Upload features to Hopsworks Feature Store (non-blocking)
+        continue-on-error: true
+        run: >-
+          python -m scripts.historical_backfill
+          --upload
         env:
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
           HOPSWORKS_PROJECT: DataProject
+
+      # ── 7. Register trained artifacts in Hopsworks Model Registry (optional) ──
+      # Uses the new register_artifacts.py which decouples registration from
+      # training. Non-blocking: if Hopsworks is down, artifacts remain valid
+      # locally and Vercel will still serve the updated forecasts.
+      - name: Register artifacts in Hopsworks Model Registry (non-blocking)
+        continue-on-error: true
+        run: python -m scripts.register_artifacts
+        env:
+          HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
+          HOPSWORKS_PROJECT: DataProject
+
+      # ── 8. Verify training artifacts were produced ────────────────────────────
+      - name: Verify training artifacts exist
+        run: |
+          test -f artifacts/best_model.json          || (echo "❌ missing best_model.json"          && exit 1)
+          test -f artifacts/model_comparison.csv     || (echo "❌ missing model_comparison.csv"     && exit 1)
+          test -f artifacts/training_summary.json    || (echo "❌ missing training_summary.json"    && exit 1)
+          test -f artifacts/leakage_report.json      || (echo "❌ missing leakage_report.json"      && exit 1)
+          test -f artifacts/aqi_random_forest/model.joblib || (echo "❌ missing RF model.joblib"   && exit 1)
+          test -f artifacts/aqi_ridge/model.joblib         || (echo "❌ missing Ridge model.joblib" && exit 1)
+          echo "✅ All required training artifacts present"
+          echo "--- best_model.json ---"
+          cat artifacts/best_model.json
+          echo ""
+          echo "--- model_comparison.csv ---"
+          cat artifacts/model_comparison.csv

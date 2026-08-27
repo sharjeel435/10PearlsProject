@@ -1,4 +1,5 @@
 name: Hourly feature pipeline
+
 on:
   schedule:
     - cron: "17 * * * *"
@@ -15,6 +16,7 @@ jobs:
   features:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+
     steps:
       - uses: actions/checkout@v4
 
@@ -26,7 +28,18 @@ jobs:
       - name: Install dependencies
         run: pip install -e ".[hopsworks]"
 
-      - name: Run incremental feature pipeline
+      # ── Fetch latest observations (always runs, no Hopsworks) ───────────────
+      # This step always succeeds as long as Open-Meteo is available.
+      # The features are also used as a dry-run sanity check.
+      - name: Run incremental feature pipeline (local validation)
+        run: python -m scripts.run_feature_pipeline
+        # No --upload: validates the feature engineering without Hopsworks
+
+      # ── Upload engineered features to Hopsworks Feature Store ───────────────
+      # Non-blocking: a transient Hopsworks outage causes a WARNING in the log
+      # but does NOT fail the workflow. The next hourly run will catch up.
+      - name: Upload features to Hopsworks Feature Store (non-blocking)
+        continue-on-error: true
         run: python -m scripts.run_feature_pipeline --upload
         env:
           HOPSWORKS_API_KEY: ${{ secrets.HOPSWORKS_API_KEY }}
