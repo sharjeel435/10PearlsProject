@@ -19,6 +19,7 @@ export default function SiteHeader() {
 
   const links = [
     { href: "/dashboard", label: "Forecast" },
+    { href: "/atmospheric-intelligence", label: "Atmosphere" },
     { href: "/models", label: "Models" },
     { href: "/methodology", label: "Methodology" },
     { href: "/about", label: "About" },
