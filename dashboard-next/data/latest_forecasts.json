@@ -1,7 +1,7 @@
 [
   {
     "city": "Islamabad",
-    "generated_at": "2026-09-02T08:26:25.411685+00:00",
+    "generated_at": "2026-09-02T09:11:42.884908+00:00",
     "model": "aqi_random_forest",
     "model_version": 15,
     "forecast_for_24h": "2026-09-02T23:00:00+00:00",
@@ -11,12 +11,12 @@
     "predicted_aqi_48h": 99.77576218129676,
     "category_48h": "Moderate",
     "forecast_for_72h": "2026-09-04T23:00:00+00:00",
-    "predicted_aqi_72h": 107.44811341906268,
+    "predicted_aqi_72h": 107.44811341906265,
     "category_72h": "Unhealthy for Sensitive Groups"
   },
   {
     "city": "Karachi",
-    "generated_at": "2026-09-02T08:26:25.412194+00:00",
+    "generated_at": "2026-09-02T09:11:42.885451+00:00",
     "model": "aqi_random_forest",
     "model_version": 15,
     "forecast_for_24h": "2026-09-02T23:00:00+00:00",
@@ -31,14 +31,14 @@
   },
   {
     "city": "Lahore",
-    "generated_at": "2026-09-02T08:26:25.412628+00:00",
+    "generated_at": "2026-09-02T09:11:42.885903+00:00",
     "model": "aqi_random_forest",
     "model_version": 15,
     "forecast_for_24h": "2026-09-02T23:00:00+00:00",
-    "predicted_aqi_24h": 128.62072412965122,
+    "predicted_aqi_24h": 128.6207241296512,
     "category_24h": "Unhealthy for Sensitive Groups",
     "forecast_for_48h": "2026-09-03T23:00:00+00:00",
-    "predicted_aqi_48h": 129.30954173475087,
+    "predicted_aqi_48h": 129.30954173475084,
     "category_48h": "Unhealthy for Sensitive Groups",
     "forecast_for_72h": "2026-09-04T23:00:00+00:00",
     "predicted_aqi_72h": 125.08755568384547,
