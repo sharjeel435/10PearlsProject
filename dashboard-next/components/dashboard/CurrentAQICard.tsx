@@ -6,6 +6,11 @@ import { toPKT, toUTC, toRelative, getObservationFreshness, freshnessColor } fro
 import AnimatedNumber from "@/components/motion/AnimatedNumber";
 import Tooltip from "@/components/ui/Tooltip";
 
+/** Map AQI (0–500) to a 0–1 fill fraction for the ring. */
+function aqiFraction(value: number): number {
+  return Math.min(Math.max(value, 0), 500) / 500;
+}
+
 interface CurrentAQICardProps {
   city: string;
   aqi: number | null;
@@ -67,24 +72,70 @@ export default function CurrentAQICard({
         </div>
       )}
 
-      {/* Iconic AQI number */}
-      <div className="aqi-number-display">
-        <span
-          className="aqi-huge-number tabular"
-          style={{ color: aqi != null ? colorHex : "var(--text-faint)" }}
-        >
-          {aqi != null ? (
-            <AnimatedNumber value={Math.round(numericAqi)} duration={0.5} />
-          ) : (
-            "—"
-          )}
-        </span>
-        <Tooltip term="AQI">
-          <span className="aqi-unit-label" style={{ alignSelf: "flex-end", marginBottom: "10px" }}>
-            US AQI
-          </span>
-        </Tooltip>
-      </div>
+      {/* AQI Ring Gauge */}
+      {(() => {
+        const SIZE = 200;           // SVG viewport size
+        const STROKE = 14;          // ring thickness
+        const R = (SIZE - STROKE) / 2;  // radius
+        const CIRC = 2 * Math.PI * R;
+        const fraction = aqiFraction(numericAqi);
+        const dashOffset = CIRC * (1 - (aqi != null ? fraction : 0));
+
+        return (
+          <div style={{ position: "relative", display: "inline-flex", alignItems: "center", justifyContent: "center", width: SIZE, height: SIZE, marginBottom: 4 }}>
+            <svg
+              width={SIZE}
+              height={SIZE}
+              viewBox={`0 0 ${SIZE} ${SIZE}`}
+              style={{ position: "absolute", inset: 0, transform: "rotate(-90deg)" }}
+              aria-hidden="true"
+            >
+              {/* Track ring */}
+              <circle
+                cx={SIZE / 2}
+                cy={SIZE / 2}
+                r={R}
+                fill="none"
+                stroke="rgba(255,255,255,0.07)"
+                strokeWidth={STROKE}
+                strokeLinecap="round"
+              />
+              {/* Filled arc */}
+              <circle
+                cx={SIZE / 2}
+                cy={SIZE / 2}
+                r={R}
+                fill="none"
+                stroke={aqi != null ? colorHex : "var(--text-faint)"}
+                strokeWidth={STROKE}
+                strokeLinecap="round"
+                strokeDasharray={CIRC}
+                strokeDashoffset={dashOffset}
+                style={{ transition: "stroke-dashoffset 0.8s cubic-bezier(.4,0,.2,1), stroke 0.4s ease" }}
+              />
+            </svg>
+
+            {/* Number + unit centred inside ring */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 2, zIndex: 1 }}>
+              <span
+                className="aqi-huge-number tabular"
+                style={{ color: aqi != null ? colorHex : "var(--text-faint)", fontSize: "clamp(54px, 8vw, 84px)" }}
+              >
+                {aqi != null ? (
+                  <AnimatedNumber value={Math.round(numericAqi)} duration={0.5} />
+                ) : (
+                  "—"
+                )}
+              </span>
+              <Tooltip term="AQI">
+                <span className="aqi-unit-label" style={{ marginBottom: 0, fontSize: "11px" }}>
+                  US AQI
+                </span>
+              </Tooltip>
+            </div>
+          </div>
+        );
+      })()}
 
       {/* Category word */}
       <p
