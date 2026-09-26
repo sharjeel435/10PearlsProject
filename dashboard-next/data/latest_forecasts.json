@@ -1,7 +1,7 @@
 [
   {
     "city": "Islamabad",
-    "generated_at": "2026-09-26T08:58:51.072447+00:00",
+    "generated_at": "2026-09-26T09:38:13.419017+00:00",
     "model": "aqi_random_forest",
     "model_version": 38,
     "forecast_for_24h": "2026-09-26T23:00:00+00:00",
@@ -16,7 +16,7 @@
   },
   {
     "city": "Karachi",
-    "generated_at": "2026-09-26T08:58:51.072947+00:00",
+    "generated_at": "2026-09-26T09:38:13.419472+00:00",
     "model": "aqi_random_forest",
     "model_version": 38,
     "forecast_for_24h": "2026-09-26T23:00:00+00:00",
@@ -31,7 +31,7 @@
   },
   {
     "city": "Lahore",
-    "generated_at": "2026-09-26T08:58:51.073389+00:00",
+    "generated_at": "2026-09-26T09:38:13.419967+00:00",
     "model": "aqi_random_forest",
     "model_version": 38,
     "forecast_for_24h": "2026-09-26T23:00:00+00:00",
